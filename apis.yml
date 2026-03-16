@@ -7,9 +7,9 @@ apis:
     tags:
       - Legal
       - Law
-    humanURL: ' https://confidolegal.com/'
+    humanURL: https://confidolegal.com/
     properties:
-      - url: ' https://confidolegal.com/'
+      - url: https://confidolegal.com/
         type: Documentation
     description: >-
       Confido Legal is a legal consulting firm that specializes in providing
@@ -30,7 +30,7 @@ type: Index
 image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
 access: 3rd-Party
 created: '2025-03-01'
-modified: '2025-03-01'
+modified: '2026-03-16'
 position: Consumer
 description: >-
   Confido Legal is a boutique law firm that specializes in providing
@@ -44,5 +44,5 @@ description: >-
   clients navigate complex legal issues with confidence and peace of mind.
 maintainers:
   - FN: Kin Lane
-    email: info@apievangelist.com
+    email: kin@apievangelist.com
 specificationVersion: '0.19'
