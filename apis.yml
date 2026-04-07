@@ -5,8 +5,8 @@ apis:
   - aid: confido-legal:confido-legal
     name: Confido Legal
     tags:
-      - Legal
       - Law
+      - Legal
     humanURL: https://confidolegal.com/
     properties:
       - url: https://confidolegal.com/
@@ -20,8 +20,8 @@ apis:
       detail, and commitment to delivering top-quality legal services to their clients.
 name: Confido Legal
 tags:
-  - Legal
   - Law
+  - Legal
 type: Index
 image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
 access: 3rd-Party
