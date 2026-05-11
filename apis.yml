@@ -102,6 +102,31 @@ common:
     url: https://confidolegal.com/contact
   - type: Support
     email: support@confidolegal.com
+integrations:
+  - name: confido-logo
+  - name: litify-logo
+  - name: smartadvocate
+  - name: leanlaw
+  - name: lawmatics
+  - name: lawcus
+  - name: glade ai
+  - name: Clarra
+  - name: PrimaLaw
+  - name: simplelaw
+  - name: Fidu
+  - name: clever case
+  - name: matter-365-logo
+  - name: salesforce
+  - name: quickbooks
+  - name: Clio-Horizontal-Blue
+  - name: oracle-net-suite
+  - name: zapier
+  - name: soluno
+  - name: Smith.ai
+  - name: lawlytics
+  - name: Block Icon (4)-1
+  - name: arrow-right
+  - name: confido-logo-foote
 maintainers:
   - FN: Kin Lane
     email: kin@apievangelist.com
