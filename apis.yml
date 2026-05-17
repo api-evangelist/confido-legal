@@ -17,7 +17,7 @@ url: >-
 created: '2025-03-01'
 modified: '2026-04-28'
 specificationVersion: '0.19'
-x-type: company
+kind: company
 tags:
   - Compliance
   - Disbursements
