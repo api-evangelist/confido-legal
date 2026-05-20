@@ -82,6 +82,8 @@ apis:
       - Tokenize payment methods for repeat retainer billing
       - Reconcile transactions with QuickBooks or Salesforce
 common:
+  - type: LinkedIn
+    url: https://www.linkedin.com/company/confidolegal
   - type: Website
     url: https://confidolegal.com/
   - type: Documentation
