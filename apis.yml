@@ -19,116 +19,118 @@ modified: '2026-04-28'
 specificationVersion: '0.19'
 kind: company
 tags:
-  - Compliance
-  - Disbursements
+- Compliance
+- Disbursements
+- GraphQL
+- IOLTA
+- Law
+- LawTech
+- Legal
+- Legal Technology
+- Payments
+- Trust Accounting
+apis:
+- aid: confido-legal:graphql-api
+  name: Confido Legal GraphQL API
+  description: >-
+    The Confido Legal GraphQL API is the unified developer interface for the
+    Confido payments platform. Partners and law-firm developers use it to
+    tokenize payment methods, accept ACH and card payments with automated
+    routing to operating or trust (IOLTA) accounts, issue real-time
+    disbursements, manage payors and payees, and reconcile transactions. The
+    API enforces legal-industry compliance rules (PCI, IOLTA segregation,
+    surcharge rules) at the platform layer so partners do not have to
+    replicate them.
+  humanURL: https://docs.confidolegal.com/
+  baseURL: https://api.gravity-legal.com/
+  image: https://kinlane-productions2.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+  tags:
   - GraphQL
   - IOLTA
-  - Law
-  - LawTech
-  - Legal
-  - Legal Technology
   - Payments
   - Trust Accounting
-apis:
-  - aid: confido-legal:graphql-api
-    name: Confido Legal GraphQL API
-    description: >-
-      The Confido Legal GraphQL API is the unified developer interface for the
-      Confido payments platform. Partners and law-firm developers use it to
-      tokenize payment methods, accept ACH and card payments with automated
-      routing to operating or trust (IOLTA) accounts, issue real-time
-      disbursements, manage payors and payees, and reconcile transactions. The
-      API enforces legal-industry compliance rules (PCI, IOLTA segregation,
-      surcharge rules) at the platform layer so partners do not have to
-      replicate them.
-    humanURL: https://docs.confidolegal.com/
-    baseURL: https://api.gravity-legal.com/
-    image: https://kinlane-productions2.s3.amazonaws.com/apis-json/apis-json-logo.jpg
-    tags:
-      - GraphQL
-      - IOLTA
-      - Payments
-      - Trust Accounting
-    properties:
-      - type: Documentation
-        url: https://docs.confidolegal.com/
-      - type: GraphQL Endpoint
-        url: https://api.gravity-legal.com/
-      - type: Sandbox
-        url: https://api.sandbox.gravity-legal.com/
-      - type: API Playground
-        url: https://studio.apollographql.com/
-      - type: LLMs
-        url: https://docs.confidolegal.com/llms.txt
-    contact:
-      - FN: Confido Legal Support
-        email: support@confidolegal.com
-        url: https://confidolegal.com/contact
-    x-features:
-      - Tokenized Payment Methods
-      - ACH and Card Payments
-      - Trust Account (IOLTA) Routing
-      - Real-Time Disbursements
-      - Payor and Payee Management
-      - Webhook Notifications
-      - Hosted UI Components
-      - Sandbox Environment
-      - Built-In PCI Compliance
-      - Surcharge and Convenience Fee Support
-    x-use-cases:
-      - Embed compliant payments in legal practice management software
-      - Route client funds between trust and operating accounts
-      - Disburse settlement funds to claimants in real time
-      - Tokenize payment methods for repeat retainer billing
-      - Reconcile transactions with QuickBooks or Salesforce
-common:
-  - type: LinkedIn
-    url: https://www.linkedin.com/company/confidolegal
-  - type: Website
-    url: https://confidolegal.com/
+  properties:
   - type: Documentation
     url: https://docs.confidolegal.com/
-  - type: Developer Portal
-    url: https://docs.confidolegal.com/
+  - type: GraphQL Endpoint
+    url: https://api.gravity-legal.com/
   - type: Sandbox
     url: https://api.sandbox.gravity-legal.com/
-  - type: Production
-    url: https://api.gravity-legal.com/
-  - type: Integrations
-    url: https://confidolegal.com/integrations
-  - type: Pricing
-    url: https://confidolegal.com/pricing
-  - type: Blog
-    url: https://confidolegal.com/blog
-  - type: Contact
-    url: https://confidolegal.com/contact
-  - type: Support
+  - type: API Playground
+    url: https://studio.apollographql.com/
+  - type: LLMs
+    url: https://docs.confidolegal.com/llms.txt
+  - url: graphql/confido-legal-graphql.md
+    type: GraphQL
+  contact:
+  - FN: Confido Legal Support
     email: support@confidolegal.com
+    url: https://confidolegal.com/contact
+  x-features:
+  - Tokenized Payment Methods
+  - ACH and Card Payments
+  - Trust Account (IOLTA) Routing
+  - Real-Time Disbursements
+  - Payor and Payee Management
+  - Webhook Notifications
+  - Hosted UI Components
+  - Sandbox Environment
+  - Built-In PCI Compliance
+  - Surcharge and Convenience Fee Support
+  x-use-cases:
+  - Embed compliant payments in legal practice management software
+  - Route client funds between trust and operating accounts
+  - Disburse settlement funds to claimants in real time
+  - Tokenize payment methods for repeat retainer billing
+  - Reconcile transactions with QuickBooks or Salesforce
+common:
+- type: LinkedIn
+  url: https://www.linkedin.com/company/confidolegal
+- type: Website
+  url: https://confidolegal.com/
+- type: Documentation
+  url: https://docs.confidolegal.com/
+- type: Developer Portal
+  url: https://docs.confidolegal.com/
+- type: Sandbox
+  url: https://api.sandbox.gravity-legal.com/
+- type: Production
+  url: https://api.gravity-legal.com/
+- type: Integrations
+  url: https://confidolegal.com/integrations
+- type: Pricing
+  url: https://confidolegal.com/pricing
+- type: Blog
+  url: https://confidolegal.com/blog
+- type: Contact
+  url: https://confidolegal.com/contact
+- type: Support
+  email: support@confidolegal.com
 integrations:
-  - name: confido-logo
-  - name: litify-logo
-  - name: smartadvocate
-  - name: leanlaw
-  - name: lawmatics
-  - name: lawcus
-  - name: glade ai
-  - name: Clarra
-  - name: PrimaLaw
-  - name: simplelaw
-  - name: Fidu
-  - name: clever case
-  - name: matter-365-logo
-  - name: salesforce
-  - name: quickbooks
-  - name: Clio-Horizontal-Blue
-  - name: oracle-net-suite
-  - name: zapier
-  - name: soluno
-  - name: Smith.ai
-  - name: lawlytics
-  - name: Block Icon (4)-1
-  - name: arrow-right
-  - name: confido-logo-foote
+- name: confido-logo
+- name: litify-logo
+- name: smartadvocate
+- name: leanlaw
+- name: lawmatics
+- name: lawcus
+- name: glade ai
+- name: Clarra
+- name: PrimaLaw
+- name: simplelaw
+- name: Fidu
+- name: clever case
+- name: matter-365-logo
+- name: salesforce
+- name: quickbooks
+- name: Clio-Horizontal-Blue
+- name: oracle-net-suite
+- name: zapier
+- name: soluno
+- name: Smith.ai
+- name: lawlytics
+- name: Block Icon (4)-1
+- name: arrow-right
+- name: confido-logo-foote
 maintainers:
-  - FN: Kin Lane
-    email: kin@apievangelist.com
+- FN: Kin Lane
+  email: kin@apievangelist.com
