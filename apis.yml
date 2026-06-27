@@ -90,7 +90,7 @@ common:
   url: https://confidolegal.com/
 - type: Documentation
   url: https://docs.confidolegal.com/
-- type: Developer Portal
+- type: DeveloperPortal
   url: https://docs.confidolegal.com/
 - type: Sandbox
   url: https://api.sandbox.gravity-legal.com/
