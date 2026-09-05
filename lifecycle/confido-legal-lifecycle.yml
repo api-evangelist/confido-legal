@@ -1,0 +1,138 @@
+generated: '2026-09-05'
+method: searched
+source: https://docs.confidolegal.com/ + graphql/confido-legal-introspection.json + https://status.confidolegal.com
+provider: Confido Legal
+providerId: confido-legal
+description: >-
+  How the Confido Legal API changes over time. There is no version number and no published
+  deprecation policy document; evolution is expressed entirely through GraphQL @deprecated
+  directives, each of which names its replacement, plus an "Upcoming Changes" and a
+  "Migrations" section in the docs.
+versioning:
+  scheme: unversioned GraphQL, evolved by field deprecation
+  current_version: null
+  version_header: none
+  url_version_segment: >-
+    A /v2 segment appears in some Confido docs pages and in the provider's own agent skill
+    (api.gravity-legal.com/v2). The docs Overview names the bare root. Both reach the same
+    schema.
+deprecation_policy:
+  published: false
+  sunset_header: false
+  deprecation_header: false
+  rfc8594: false
+  detail: >-
+    Confido publishes no dated deprecation or sunset policy, and serves no Sunset or
+    Deprecation HTTP headers. What it does do well is name a replacement on every single
+    deprecated schema member — all 26 carry an actionable deprecationReason. What is
+    missing is the CLOCK: nothing states how long a deprecated field keeps working.
+  mechanism: GraphQL @deprecated(reason:)
+  advance_notice_surface: https://docs.confidolegal.com/upcoming-changes/firm-declined-status
+  migration_guides:
+  - title: Voids and Refunds Migration
+    url: https://docs.confidolegal.com/migrations/voids-and-refunds-migration
+    reason: >-
+      A sponsor-bank change made voids and refunds able to exceed 60 seconds, so the three
+      synchronous mutations were replaced by asynchronous ones with a request/result split.
+    warning: >-
+      Confido states that for firms onboarded on the new sponsor bank the LEGACY mutations
+      return a "Not implemented" error — the deprecated path is already dead for those
+      firms, not merely discouraged.
+deprecated:
+  count: 26
+  method: derived
+  source: graphql/confido-legal-introspection.json
+  operations:
+  - name: refundTransaction
+    kind: mutation
+    replacement: transactionRefund
+  - name: voidTransaction
+    kind: mutation
+    replacement: transactionVoid
+  - name: voidOrRefundTransaction
+    kind: mutation
+    replacement: transactionVoidOrRefund
+  - name: storedPaymentMethodRefund
+    kind: mutation
+    replacement: storedPaymentMethodRefund_v2
+  - name: createPaymentToken
+    kind: mutation
+    replacement: paymentSessionCreate
+  - name: runPayment
+    kind: mutation
+    replacement: paymentSessionComplete
+  - name: createFirmApiToken
+    kind: mutation
+    replacement: firmApiTokenCreate
+  - name: exchangeCodeForFirmApiToken
+    kind: mutation
+    replacement: firmApiTokenExchangeCode
+  - name: addMatter
+    kind: mutation
+    replacement: matterCreate
+  - name: updateMatter
+    kind: mutation
+    replacement: matterUpdate
+  - name: disbursementUnapprove
+    kind: mutation
+    replacement: disbursementReturnToDraft
+  - name: addAddress
+    kind: mutation
+    replacement: parent entity
+  - name: updateAddress
+    kind: mutation
+    replacement: parent entity
+  - name: removeAddress
+    kind: mutation
+    replacement: parent entity
+  - name: firms
+    kind: query
+    replacement: firmsList
+  fields:
+  - name: Transaction.status
+    replacement: Transaction.status_v2
+  - name: Transaction.achStatus
+    replacement: Transaction.status
+  - name: Disbursement.expectedDeliveryDate
+    replacement: Disbursement.depositEta
+  - name: Disbursement.disbursementNumber
+    replacement: Disbursement.displayNumber
+  - name: DisbursementsCreateBulkResultItem.disbursementNumber
+    replacement: displayNumber
+  - name: FirmSettings.achProcessor
+    replacement: FirmSettings.processingEnv
+  - name: FirmSettings.ccProcessor
+    replacement: FirmSettings.processingEnv
+  - name: FirmSettings.checkMailingAddress
+    replacement: firm.settings.mailingAddress
+  - name: DisbursementMethodAchSettings.verified
+    replacement: active
+  - name: DisbursementMethodAchSettings.verifyStatus
+    replacement: null
+    note: No longer used.
+  - name: DisbursementMethodSettings.verified
+    replacement: active
+  note: >-
+    Transaction.achStatus points at Transaction.status, which is itself deprecated in
+    favour of status_v2 — a two-hop deprecation chain. Read status_v2.
+status_page:
+  present: true
+  url: https://status.confidolegal.com
+  platform: Better Stack (status page)
+  http_status: 200
+  probed: '2026-09-05'
+  machine_readable_api: null
+  note: >-
+    Served by Better Stack, not Atlassian Statuspage — the page loads assets from
+    cdnjs.betterstack.com. The Statuspage convention /api/v2/status.json answers 301 and
+    redirects to the HTML page, so there is NO machine-readable health endpoint an agent
+    can poll. Human-readable only.
+sla:
+  published: false
+  detail: >-
+    No SLA, uptime commitment or support-response target is published on the marketing
+    site, the docs, or the pricing page.
+support:
+  email: support@confidolegal.com
+  contact_page: https://confidolegal.com/contact
+  knowledge_base: https://confidolegal.com/knowledgebase

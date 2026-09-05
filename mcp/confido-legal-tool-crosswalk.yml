@@ -1,0 +1,126 @@
+generated: '2026-09-05'
+method: derived
+source: mcp/confido-legal-mcp-tools.json + graphql/confido-legal-introspection.json
+provider: Confido Legal
+providerId: confido-legal
+description: >-
+  Binding between the tools the Confido Legal MCP server exposes and the operations its
+  GraphQL API actually implements. The headline finding is a total divergence: the MCP
+  server is a documentation-search server and none of its three tools invokes a Confido
+  Legal API operation, while all 139 GraphQL root fields (41 queries, 98 mutations) are
+  reachable only by calling the GraphQL endpoint directly with an x-api-key.
+surfaces:
+  openapi:
+    present: false
+    note: >-
+      Confido Legal publishes no OpenAPI document. Probed /openapi.json, /openapi.yaml,
+      /swagger.json, /api-docs, /docs and /v1/openapi.json on api.gravity-legal.com (all
+      400, Apollo CSRF prevention) and on docs.confidolegal.com (404). GraphQL is the
+      contract.
+  graphql:
+    endpoint: https://api.gravity-legal.com/
+    sandbox_endpoint: https://api.sandbox.gravity-legal.com/
+    gated: false
+    note: >-
+      Full introspection succeeds anonymously when the request carries
+      apollo-require-preflight: true (Apollo CSRF prevention rejects it otherwise).
+    query_fields: 41
+    mutation_fields: 98
+    types: 285
+  mcp:
+    url: https://docs.confidolegal.com/mcp
+    gated: false
+    tools: 3
+crosswalk: []
+mcp_only:
+- tool: search_confido_legal_docs
+  reason: >-
+    Documentation retrieval over the docs corpus. No corresponding GraphQL field —
+    the Confido Legal schema has no documentation search surface.
+- tool: query_docs_filesystem_confido_legal_docs
+  reason: >-
+    Read-only query over a virtualized in-memory filesystem of documentation pages.
+    Docs-infrastructure tool, not a platform operation.
+- tool: submit_feedback
+  reason: >-
+    Files documentation feedback with the docs team. No GraphQL mutation exists for it.
+graphql_only:
+  note: >-
+    Every business operation is GraphQL-only — no MCP tool reaches any of them. Listed
+    below are the representative marquee operations an agent would need; the complete
+    list is graphql/confido-legal.graphql.
+  representative:
+  - field: paymentSessionCreate
+    kind: mutation
+    category: receive-money
+  - field: paymentSessionComplete
+    kind: mutation
+    category: receive-money
+  - field: addPaymentLink
+    kind: mutation
+    category: receive-money
+  - field: recordManualPaymentOnPaymentLink
+    kind: mutation
+    category: receive-money
+  - field: initiateSPMPayment
+    kind: mutation
+    category: receive-money
+  - field: disbursementCreate
+    kind: mutation
+    category: send-money
+  - field: disbursementsCreateBulk
+    kind: mutation
+    category: send-money
+  - field: disbursementApprove
+    kind: mutation
+    category: send-money
+  - field: transactionRefund
+    kind: mutation
+    category: reversal
+  - field: transactionVoid
+    kind: mutation
+    category: reversal
+  - field: transactionVoidOrRefund
+    kind: mutation
+    category: reversal
+  - field: createFirm
+    kind: mutation
+    category: onboarding
+  - field: createOnboardingToken
+    kind: mutation
+    category: onboarding
+  - field: firmApiTokenCreate
+    kind: mutation
+    category: onboarding
+  - field: webhookUrlCreate
+    kind: mutation
+    category: webhooks
+  - field: webhookEventResend
+    kind: mutation
+    category: webhooks
+  - field: transaction
+    kind: query
+    category: read
+  - field: transactionsList
+    kind: query
+    category: read
+  - field: disbursementGet
+    kind: query
+    category: read
+  - field: statements
+    kind: query
+    category: read
+rest_only: []
+coverage:
+  mcp_tools: 3
+  mcp_tools_bound_to_api: 0
+  graphql_root_fields: 139
+  graphql_root_fields_bound_to_a_tool: 0
+  openapi_operations: 0
+  binding_rate: 0.0
+finding: >-
+  Confido Legal ships two agent surfaces that do not meet. The MCP server and the A2A
+  agent card both live on docs.confidolegal.com and describe documentation; the callable
+  payments platform lives on api.gravity-legal.com and is reachable only through GraphQL.
+  An agent that discovers Confido Legal through its agent card or MCP server can read
+  about payments but cannot execute one.

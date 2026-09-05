@@ -1,0 +1,215 @@
+generated: '2026-09-05'
+method: derived
+source: graphql/confido-legal-introspection.json
+provider: Confido Legal
+providerId: confido-legal
+description: >-
+  Entity-relationship graph of the Confido Legal platform, derived from live GraphQL
+  introspection (285 types, 155 objects). The shape is a two-level tenancy — Partner owns
+  Firms, Firm owns everything else — with money split cleanly into a receive side
+  (Payment / PaymentLink / Transaction) and a send side (Disbursement), meeting again at
+  Transaction.
+tenancy:
+  root: Partner
+  detail: >-
+    A Partner is a software company integrating Confido. A Firm is a law firm under that
+    Partner. Almost every business object hangs off Firm, and a Firm token can only see
+    its own Firm's data.
+identifiers:
+  format: UUID v4
+  evidence: >-
+    BankAccount.id is documented as "a unique uuidv4 value for this object", and
+    DisbursementCreateInput.id must be a valid UUID v4 when client-supplied.
+  prefixed_ids: false
+  note: >-
+    Confido does NOT use type-prefixed identifiers (no txn_, no cus_). An id alone does not
+    say what it points at, so an agent must track type alongside id.
+  external_correlation:
+    field: externalId
+    present_on: [Client, Matter, PaymentLink, AggregatePaymentLink, RefundRequest, VoidRequest]
+    purpose: Correlate a Confido record with the partner system's own identifier.
+  quickbooks:
+    field: qbRealmId
+    present_on: [Client, PaymentLink]
+    query: clientFromQuickBooksReference
+entities:
+- name: Partner
+  role: tenant root
+  relationships: []
+- name: Firm
+  role: the account that processes payments
+  status_enum: FirmStatus
+  relationships:
+  - {to: Partner, kind: belongs_to, via: partner}
+  - {to: BankAccount, kind: has_many, via: bankAccounts}
+  - {to: FirmSettings, kind: has_one, via: settings}
+  - {to: FirmBranding, kind: has_one, via: branding}
+  - {to: PaymentSettings, kind: has_one, via: paymentSettings}
+  - {to: FirmDisbursementSettings, kind: has_one, via: disbursementSettings}
+  - {to: FirmApiToken, kind: has_many, via: firmApiTokenList}
+- name: BankAccount
+  role: operating or trust (IOLTA) account funds route to or from
+  key_field: category
+  key_values: [operating, trust]
+  relationships:
+  - {to: Firm, kind: belongs_to, via: firmId}
+  - {to: BankAccountDisbursementSettings, kind: has_one, via: disbursementSettings}
+  note: >-
+    This is the IOLTA segregation primitive. Confirm accountCategory before creating a
+    payment link with a trust split — an ACTIVE firm does not necessarily have both.
+- name: Client
+  role: the law firm's client (the payer or payee)
+  relationships:
+  - {to: Firm, kind: belongs_to, via: firm}
+  - {to: Contact, kind: has_one, via: primaryContact}
+  - {to: Address, kind: has_one, via: address}
+  - {to: Balance, kind: has_one, via: balance}
+- name: Matter
+  role: a legal matter, the case a payment is attached to
+  relationships:
+  - {to: Client, kind: belongs_to, via: client}
+  - {to: Client, kind: has_one, via: secondaryClient}
+  - {to: Balance, kind: has_one, via: balance}
+- name: Contact
+  relationships:
+  - {to: Address, kind: has_one, via: address}
+- name: PaymentLink
+  role: hosted payment page for a fixed amount tied to a Client
+  relationships:
+  - {to: Firm, kind: belongs_to, via: firm}
+  - {to: Client, kind: belongs_to, via: client}
+  - {to: Matter, kind: belongs_to, via: matter}
+  - {to: Amount, kind: has_many, via: amounts}
+  - {to: Balance, kind: has_one, via: balance}
+  - {to: PaymentLinkPartialPayment, kind: has_one, via: partialPayment}
+  - {to: PaymentLinkClio, kind: has_one, via: clio}
+  note: >-
+    The `amounts` collection is where the operating/trust split lives. PaymentLinkClio is a
+    first-class integration hook for Clio invoices, baked into the schema.
+- name: AggregatePaymentLink
+  role: hosted page for a client's whole outstanding balance
+  relationships:
+  - {to: Firm, kind: belongs_to, via: firm}
+  - {to: Client, kind: belongs_to, via: client}
+  - {to: PaymentLink, kind: has_many, via: paymentLinks}
+  constraint: Payments made on an AggregatePaymentLink cannot be voided.
+- name: Payment
+  role: a payer's act of paying; fans out into one or more Transactions
+  relationships:
+  - {to: Firm, kind: belongs_to, via: firm}
+  - {to: Client, kind: belongs_to, via: client}
+  - {to: Matter, kind: belongs_to, via: matter}
+  - {to: PaymentLink, kind: belongs_to, via: paymentLink}
+  - {to: StoredPaymentMethod, kind: belongs_to, via: storedPaymentMethod}
+  - {to: Transaction, kind: has_many, via: transactions}
+- name: Transaction
+  role: the ledger entry — the single busiest object in the schema (49 fields)
+  status_enum: TransactionStatus2
+  status_field: status_v2
+  type_enum: TransactionType
+  relationships:
+  - {to: Firm, kind: belongs_to, via: firm}
+  - {to: BankAccount, kind: belongs_to, via: bankAccount}
+  - {to: Client, kind: belongs_to, via: client}
+  - {to: Matter, kind: belongs_to, via: matter}
+  - {to: Payment, kind: belongs_to, via: payment}
+  - {to: PaymentLink, kind: belongs_to, via: paymentLink}
+  - {to: AggregatePaymentLink, kind: belongs_to, via: aggregatePaymentLink}
+  - {to: StandingLink, kind: belongs_to, via: standingLink}
+  - {to: StoredPaymentMethod, kind: belongs_to, via: storedPaymentMethod}
+  - {to: Subscription, kind: belongs_to, via: subscription}
+  - {to: Disbursement, kind: belongs_to, via: disbursement}
+  - {to: Transaction, kind: belongs_to, via: originalTransactionId}
+  - {to: TransactionEvent, kind: has_many, via: events}
+  - {to: VoidRequest, kind: has_many, via: voidRequests}
+  - {to: RefundRequest, kind: has_many, via: refundRequests}
+  - {to: TransactionPayRequest, kind: has_one, via: payRequest}
+  grouping_fields: [txnGroupId, originalTransactionId, depositId]
+  note: >-
+    txnGroupId and originalTransactionId are the self-referential edges that make voids,
+    refunds, returns and chargeback reversals traceable back to the original charge. This
+    is why transactionVoidDetails exists — one payment can produce several Transactions and
+    they must be voided together.
+- name: Disbursement
+  role: money out — settlement or vendor payout
+  status_enum: DisbursementStatus
+  relationships:
+  - {to: BankAccount, kind: belongs_to, via: fundingAccount}
+  - {to: Client, kind: belongs_to, via: client}
+  - {to: Matter, kind: belongs_to, via: matter}
+  - {to: Vendor, kind: belongs_to, via: vendor}
+  - {to: StoredDisbursementMethod, kind: belongs_to, via: destinationMethod}
+  - {to: DisbursementIdentity, kind: has_many, via: authorizedIdentities}
+  - {to: DisbursementCheckRequestDetails, kind: has_one, via: checkRequestDetails}
+  - {to: Transaction, kind: has_many, via: transactions}
+  note: >-
+    authorizedIdentities is the access-control primitive — an EMAIL or PHONE identity must
+    authenticate before it can accept the disbursement, which is what DisbursementEventType
+    LOGIN_ATTEMPT and MFA_ENTERED record.
+- name: StoredPaymentMethod
+  role: a saved card or bank account for repeat billing (retainers, payment plans, autopay)
+  relationships:
+  - {to: Firm, kind: belongs_to, via: firm}
+  - {to: Client, kind: belongs_to, via: client}
+  - {to: SavePaymentMethodSession, kind: has_many, via: sessions}
+  - {to: SpmDeclineInfo, kind: has_one, via: declineInfo}
+  - {to: StoredPaymentMethodSurcharging, kind: has_one, via: surcharging}
+  - {to: Balance, kind: has_one, via: balance}
+- name: StoredDisbursementMethod
+  role: a saved payout destination for a client or vendor
+  relationships:
+  - {to: Firm, kind: belongs_to, via: firm}
+  - {to: Client, kind: belongs_to, via: client}
+  - {to: Vendor, kind: belongs_to, via: vendor}
+  - {to: StoredDisbursementMethodDetails, kind: has_one, via: details}
+- name: Vendor
+  role: a non-client payee (expert witnesses, court reporters, medical liens)
+  relationships:
+  - {to: VendorContact, kind: has_many, via: contacts}
+  - {to: Address, kind: has_many, via: addresses}
+  - {to: StoredDisbursementMethod, kind: has_many, via: disbursementMethods}
+- name: Subscription
+  role: recurring billing — subscription legal services and payment plans
+  relationships:
+  - {to: Client, kind: belongs_to, via: client}
+  - {to: Matter, kind: belongs_to, via: matter}
+  - {to: StoredPaymentMethod, kind: belongs_to, via: storedPaymentMethod}
+  - {to: Schedule, kind: has_one, via: schedule}
+  - {to: Amount, kind: has_many, via: amounts}
+  - {to: UpcomingPayment, kind: has_many, via: upcomingPayments}
+- name: Statement
+  role: the firm's monthly fee statement and the debits taken against its accounts
+  relationships:
+  - {to: StatementBankAccount, kind: has_many, via: bankAccounts}
+  - {to: StatementDebit, kind: has_many, via: debits}
+  - {to: StatementAdditionalCredit, kind: has_many, via: additionalCredits}
+  - {to: StatementAdditionalFee, kind: has_many, via: additionalFees}
+  note: >-
+    Also exposes pdfUrl, a short-lived signed link. Confido explicitly warns not to email
+    it — download and attach instead.
+- name: WebhookUrl
+  relationships:
+  - {to: WebhookUrlAdvancedSettings, kind: has_one, via: advancedSettings}
+- name: WebhookEvent
+  relationships:
+  - {to: WebhookUrl, kind: belongs_to, via: webhookUrl}
+- name: RefundRequest
+  role: the asynchronous half of a refund
+  status_enum: RequestStatus
+- name: VoidRequest
+  role: the asynchronous half of a void
+  status_enum: RequestStatus
+- name: Document
+  role: agreements a firm must accept during onboarding
+  status_enum: DocumentStatus
+  relationships:
+  - {to: DocumentAcceptEvent, kind: has_many, via: acceptEvents}
+- name: FirmApiToken
+  role: a firm-scoped credential; a firm may hold several
+counts:
+  types: 285
+  objects: 155
+  enums: 26
+  query_fields: 41
+  mutation_fields: 98
+  deprecated_members: 26

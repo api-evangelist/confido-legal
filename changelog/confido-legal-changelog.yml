@@ -1,0 +1,71 @@
+generated: '2026-09-05'
+method: searched
+source: https://docs.confidolegal.com/upcoming-changes/firm-declined-status + https://docs.confidolegal.com/migrations/voids-and-refunds-migration + https://confidolegal.com/news
+provider: Confido Legal
+providerId: confido-legal
+description: >-
+  Confido Legal publishes no dated API changelog or release-notes feed. What it publishes
+  instead is a small "Upcoming Changes" section and a "Migrations" section in the docs, plus
+  product announcements on the marketing newsroom. The entries below are the dated API
+  changes that could be established from those surfaces.
+scheme: none
+current_version: null
+changelog_url: null
+probed_for_changelog:
+- url: https://docs.confidolegal.com/changelog
+  status: 404
+- url: https://docs.confidolegal.com/docs/changelog
+  status: 404
+- url: https://docs.confidolegal.com/release-notes
+  status: 404
+substitute_surfaces:
+- name: Upcoming Changes
+  url: https://docs.confidolegal.com/upcoming-changes/firm-declined-status
+  kind: forward-looking, dated
+- name: Migrations
+  url: https://docs.confidolegal.com/migrations/voids-and-refunds-migration
+  kind: breaking-change guide, undated
+- name: Newsroom
+  url: https://confidolegal.com/news
+  kind: product and partnership announcements, not API-specific
+entries:
+- version: null
+  date: '2026-01-15'
+  title: FirmStatus.DECLINED added
+  type: addition
+  breaking: false
+  highlights:
+  - >-
+    A new DECLINED value on the FirmStatus enum, assigned when a firm does not meet
+    underwriting requirements. Terminal state; restarting requires contacting support.
+  source: https://docs.confidolegal.com/upcoming-changes/firm-declined-status
+  note: >-
+    Additive to an enum, which is nonetheless breaking for any client that exhaustively
+    switches on FirmStatus. Confido gave advance notice with a release date, which is the
+    right practice.
+- version: null
+  date: null
+  title: Voids and refunds became asynchronous
+  type: breaking
+  breaking: true
+  highlights:
+  - transactionRefund replaces refundTransaction
+  - transactionVoid replaces voidTransaction
+  - transactionVoidOrRefund replaces voidOrRefundTransaction
+  - Response structure now separates request status from transaction results
+  - Transaction lists in responses are nullable and may be empty initially
+  - Status checking is required to determine completion (AWAITING_RESULT)
+  - >-
+    For firms onboarded on the new sponsor bank the legacy mutations already return
+    "Not implemented" — the old path is removed, not merely deprecated, for those firms.
+  cause: A sponsor-bank change made void/refund settlement able to exceed 60 seconds.
+  source: https://docs.confidolegal.com/migrations/voids-and-refunds-migration
+  note: Published without a date, so a consumer cannot tell when the cutover applies to them.
+gaps:
+- No dated changelog, no RSS/Atom feed, and no per-release version identifier.
+- >-
+  The most consequential entry (the voids/refunds cutover) carries no date at all, while
+  a "Not implemented" error is already live for some firms.
+- >-
+  The 26 @deprecated schema members carry replacements but no removal dates; a client has
+  no way to plan migration work. See lifecycle/confido-legal-lifecycle.yml.

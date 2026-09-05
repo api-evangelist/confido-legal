@@ -1,0 +1,148 @@
+generated: '2026-09-05'
+method: probed
+source: live GET of the named /.well-known/ path list on every host this record knows
+provider: Confido Legal
+providerId: confido-legal
+description: >-
+  Probe of the named /.well-known/ document set across the registrable domain, www, the
+  docs host, both GraphQL API hosts and the partner-portal host. One real document is
+  served: an A2A agent card on docs.confidolegal.com (saved verbatim). Everything else
+  is absent.
+hosts:
+- host: docs.confidolegal.com
+  documents:
+  - path: /.well-known/agent-card.json
+    status: 200
+    file: confido-legal-agent-card.json
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  - path: /.well-known/aauth-resource.json
+    status: 404
+- host: confidolegal.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  - path: /.well-known/aauth-resource.json
+    status: 404
+- host: www.confidolegal.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  - path: /.well-known/aauth-resource.json
+    status: 404
+- host: api.gravity-legal.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 400
+  - path: /.well-known/openid-configuration
+    status: 400
+  - path: /.well-known/oauth-authorization-server
+    status: 400
+  - path: /.well-known/oauth-protected-resource
+    status: 400
+  - path: /.well-known/api-catalog
+    status: 400
+  - path: /.well-known/ai-plugin.json
+    status: 400
+  - path: /.well-known/agent-card.json
+    status: 400
+  - path: /.well-known/agent.json
+    status: 400
+  - path: /.well-known/aauth-resource.json
+    status: 400
+- host: api.sandbox.gravity-legal.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 400
+  - path: /.well-known/openid-configuration
+    status: 400
+  - path: /.well-known/oauth-authorization-server
+    status: 400
+  - path: /.well-known/oauth-protected-resource
+    status: 400
+  - path: /.well-known/api-catalog
+    status: 400
+  - path: /.well-known/ai-plugin.json
+    status: 400
+  - path: /.well-known/agent-card.json
+    status: 400
+  - path: /.well-known/agent.json
+    status: 400
+  - path: /.well-known/aauth-resource.json
+    status: 400
+- host: app.confidolegal.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+  - path: /.well-known/openid-configuration
+    status: 200
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+  - path: /.well-known/api-catalog
+    status: 200
+  - path: /.well-known/ai-plugin.json
+    status: 200
+  - path: /.well-known/agent-card.json
+    status: 200
+  - path: /.well-known/agent.json
+    status: 200
+  - path: /.well-known/aauth-resource.json
+    status: 200
+notes:
+- >-
+  app.confidolegal.com is a single-page-app catch-all: it answers 200 with the same HTML
+  shell for EVERY /.well-known/* path, including paths that do not exist. None of its 200s
+  is a document. Recorded for the audit trail; none is counted as served.
+- >-
+  api.gravity-legal.com and api.sandbox.gravity-legal.com run Apollo Server with CSRF
+  prevention enabled, which answers 400 to any GET that is not a preflighted GraphQL
+  request. This is not a missing-document signal, it is the GraphQL server refusing
+  non-GraphQL traffic.
+- >-
+  docs.confidolegal.com additionally serves /.well-known/agent-skills/confido/skill.md
+  (HTTP 200, 12,786 bytes), the packaged Agent Skill referenced by the agent card. Saved
+  verbatim to skills/confido-legal-confido-provider-skill.md.
+- >-
+  No security.txt exists on any host, so no SecurityTxt pointer is emitted.

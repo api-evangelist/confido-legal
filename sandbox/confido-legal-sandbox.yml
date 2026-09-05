@@ -1,0 +1,172 @@
+generated: '2026-09-05'
+method: searched
+source: https://docs.confidolegal.com/docs/introduction/sandbox-environment + https://docs.confidolegal.com/docs/sandbox/test-payment-methods + graphql/confido-legal-introspection.json
+provider: Confido Legal
+providerId: confido-legal
+description: >-
+  Confido Legal runs a full parallel sandbox with its own accounts, its own tokens, the
+  same GraphQL schema, published test card and ACH values, and 14 sandbox-only mutations
+  that let an integrator drive the money-movement state machine by hand. All values below
+  are published by Confido; none is invented.
+environments:
+- name: sandbox
+  api: https://api.sandbox.gravity-legal.com/
+  api_v2: https://api.sandbox.gravity-legal.com/v2
+  console: https://app.sandbox.confidolegal.com
+  js_cdn: https://js.sandbox.gravity-legal.com
+  playground: https://api.sandbox.gravity-legal.com
+- name: production
+  api: https://api.gravity-legal.com/
+  console: https://app.confidolegal.com
+  js_cdn: https://js.gravity-legal.com
+signup:
+  detail: >-
+    The sandbox is a separate account, not a mode flag on a production account. You sign up
+    for it independently at app.sandbox.confidolegal.com.
+  self_serve: true
+key_prefixes:
+  detail: >-
+    The environment is encoded in the token itself, so a misrouted credential is visible
+    on inspection.
+  examples:
+  - 'p_secret_sandbox_… (Partner, sandbox)'
+  - 'f_secret_sandbox_… (Firm, sandbox)'
+  - 'pay_public_sandbox_… (Payment Session, sandbox)'
+  - 'onboarding_public_sandbox_… (Onboarding, sandbox)'
+  note: Sandbox and production tokens are not interchangeable.
+parity:
+  schema: identical
+  behavior: >-
+    Money movement is simulated. Helpers such as mockOnboarding on createFirm and every
+    sandboxOnly* mutation work only in sandbox and are rejected in production.
+  trusted_domains: >-
+    Sandbox does not enforce Trusted Domains for hosted fields (production does). Stored
+    disbursement method forms DO require correctly configured trusted domains even in
+    sandbox.
+test_cards:
+  source: https://docs.confidolegal.com/docs/sandbox/test-payment-methods
+  entries:
+  - number: '4242424242424242'
+    brand: Visa
+    type: credit
+    result: success
+  - number: '4000056655665556'
+    brand: Visa
+    type: debit
+    result: success
+  - number: '341111111111111'
+    brand: American Express
+    type: credit
+    result: success
+  - number: '6011000990139424'
+    brand: Discover
+    type: credit
+    result: success
+  - number: '3530111333300000'
+    brand: JCB
+    type: credit
+    result: success
+  - number: '2720997465604033'
+    brand: Mastercard
+    type: credit
+    result: success
+    behavior: Takes at least 45 seconds to return — use it to test slow-authorization handling.
+  - number: '4000300011112220'
+    brand: Visa
+    type: credit
+    result: failure
+  - number: '5334354217671459'
+    brand: Visa
+    type: credit
+    result: failure
+    behavior: Causes a field error on the card-number field.
+  - number: '4000101311112229'
+    brand: Visa
+    type: credit
+    result: failure
+    behavior: Takes at least 45 seconds to fail.
+  - number: '4000100000000000'
+    brand: Visa
+    type: credit
+    result: failure
+    behavior: Fails when the amount is over $100.00.
+  - number: '5555444433332226'
+    brand: Mastercard
+    type: debit
+    result: failure
+    behavior: Fails when the amount is over $100.00.
+  - number: '4005571702222222'
+    brand: Visa
+    type: credit
+    result: failure
+    behavior: Fails on a tokenized payment.
+test_ach:
+  source: https://docs.confidolegal.com/docs/sandbox/test-payment-methods
+  entries:
+  - account_number: any
+    routing_number: any
+    result: success
+  - account_number: any
+    routing_number: '000000000'
+    result: failure
+  - account_number: '0000000000'
+    routing_number: any
+    result: failure
+fixture_triggers:
+  detail: >-
+    Sandbox-only GraphQL mutations that force a state transition and fire the matching
+    webhook. This is Confido's substitute for a dry-run mode — you rehearse against real
+    state machines rather than simulating a call.
+  method: derived
+  source: graphql/confido-legal-introspection.json
+  mutations:
+  - name: sandboxOnlyMoveTransactionToFundsInTransit
+    drives: transaction.funds_in_transit
+  - name: sandboxOnlyMoveTransactionToDeposited
+    drives: transaction.deposited
+  - name: sandboxOnlyTriggerAchReturn
+    drives: transaction.ach_returned
+    note: >-
+      Simulates an Insufficient Funds return on a transaction with type achPayment and
+      sends the webhook.
+  - name: sandboxOnlyTriggerChargeback
+    drives: chargeback transaction type
+  - name: sandboxOnlyTriggerChargebackReversal
+    drives: chargeback_reversal transaction type
+  - name: sandboxOnlyTriggerPrearbitrationLost
+    drives: dispute pre-arbitration outcome
+  - name: sandboxOnlyCreateMockStatement
+    drives: statement.created
+    note: Generates a statement for a given month with entirely random values.
+  - name: sandboxOnlyUpdateMockStatement
+    drives: statement.updated
+  - name: sandboxOnlyDisbursementExpire
+    drives: DisbursementStatus EXPIRED
+  - name: sandboxOnlyActivateFirm
+    drives: FirmStatus ACTIVE
+  - name: sandboxOnlySendFirmToReview
+    drives: FirmStatus APP_IN_REVIEW
+  - name: sandboxOnlyFillOnboardingData
+    drives: FirmStatus APP_IN_DRAFT
+  - name: sandboxOnlySubmitOnboardingData
+    drives: FirmStatus APP_SUBMITTED
+  - name: sandboxOnlyFirmSurchargingUpdate
+    drives: firm surcharging configuration
+  also:
+    name: createFirm(mockOnboarding)
+    note: Shortcut that onboards a firm without walking the application states.
+time_simulation:
+  supported: false
+  detail: >-
+    No test clock. Time-dependent behaviour (deposit timelines, the same-day void cutoff,
+    disbursement expiry) is exercised through the sandboxOnly* state-transition mutations
+    rather than by advancing a clock.
+production_cutover_checklist:
+  source: https://docs.confidolegal.com/docs/introduction/sandbox-environment
+  items:
+  - Use production Partner and Firm API tokens and the production webhook secret from app.confidolegal.com.
+  - Register production Connect callback URL and webhook URLs in the production portal.
+  - Register production Trusted Domains — sandbox does not enforce them.
+  - >-
+    Confirm outbound IP or allowlisting requirements with support@confidolegal.com if your
+    security team needs them; they are not a universal requirement.

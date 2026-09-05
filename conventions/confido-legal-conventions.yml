@@ -1,0 +1,217 @@
+generated: '2026-09-05'
+method: searched
+source: https://docs.confidolegal.com/ (llms.txt corpus) + graphql/confido-legal-introspection.json
+provider: Confido Legal
+providerId: confido-legal
+description: >-
+  Cross-cutting runtime semantics of the Confido Legal GraphQL API: how you authenticate,
+  what replay protection exists, how results page, how errors arrive, how versions move,
+  and — critically for an agent moving money — what can be taken back and inside what window.
+api_style:
+  protocol: GraphQL
+  transport: HTTPS POST
+  endpoints:
+    production: https://api.gravity-legal.com/
+    sandbox: https://api.sandbox.gravity-legal.com/
+  content_type: application/json
+  note: >-
+    Apollo Server CSRF prevention is enabled. A request that is not a preflighted GraphQL
+    POST is rejected with HTTP 400 and the message "This operation has been blocked as a
+    potential Cross-Site Request Forgery (CSRF)". Send Content-Type: application/json (or
+    the apollo-require-preflight header) on every call, including introspection.
+  introspection: open
+  playground: https://studio.apollographql.com/graph/Confido-Legal-vqze3p/variant/current/explorer
+authentication:
+  style: api-key
+  header: x-api-key
+  token_types: [Partner, Firm, Payment Session, Onboarding]
+  scoped: false
+  docs: https://docs.confidolegal.com/docs/introduction/authorization
+  see: authentication/confido-legal-authentication.yml
+idempotency:
+  coverage: partial
+  scope:
+  - disbursementCreate
+  - disbursementsCreateBulk
+  mechanism: client-supplied resource id
+  header: null
+  retention: not stated
+  docs: https://docs.confidolegal.com/docs/send-money/create-disbursement
+  detail: >-
+    Confido Legal publishes NO Idempotency-Key header and no request-level replay
+    protection for the API as a whole. The only documented request-side mechanism is the
+    optional client-supplied `id` on DisbursementCreateInput (must be a valid UUID v4);
+    reusing it lets a caller retry a create without issuing a second payout. It is
+    inherited by disbursementsCreateBulk, which takes the same input shape per item. The
+    remaining 96 mutations — including every payment-taking mutation
+    (paymentSessionComplete, addPaymentLink, initiateSPMPayment, runPayment) — have no
+    replay key, so a retried create can double-charge. Read back with transactionsList or
+    the transaction query before retrying a write.
+  inbound_events:
+    field: eventId
+    note: >-
+      On the CONSUMPTION side Confido does supply an idempotency key: every webhook body
+      carries `eventId`, and manual resends reuse the same value, so a handler keyed on
+      eventId is safe against retries and replays. This protects your handler, not
+      Confido's writes.
+    docs: https://docs.confidolegal.com/docs/webhooks/configure
+reversibility:
+  grade: verified
+  applies: true
+  detail: >-
+    Confido Legal documents a reversal path for every money-moving write and states a
+    real cutoff window for the void path. Two booleans on the Transaction object,
+    `canVoid` and `canRefund`, expose the current answer at runtime — both can be false
+    at once while funds are in transit.
+  runtime_signals:
+  - field: Transaction.canVoid
+    meaning: whether this transaction can still be voided
+  - field: Transaction.canRefund
+    meaning: whether this transaction can be refunded, based on expected settlement time
+  operations:
+  - write: payment (card or ACH), pre-settlement
+    reversal: transactionVoid
+    preflight: transactionVoidDetails
+    window: >-
+      Same-day cutoff in Central Time set by firm settings and payment method — Card
+      11:00 PM CT, ACH 11:00 PM CT (legacy firms: Card 10:30 PM CT, ACH 12:30 PM and
+      9:00 PM CT).
+    window_stated: true
+    docs: https://docs.confidolegal.com/docs/payments-lifecycle/voids-and-refunds
+    note: >-
+      One payment can produce several transactions; transactionVoidDetails lists which
+      ones a void will affect, and all related transactions must be cancelled together.
+      Payments on an Aggregate Payment Link cannot be voided at all. Surcharges on the
+      original transaction are voided automatically.
+  - write: payment, post-settlement
+    reversal: transactionRefund
+    partial: true
+    window: >-
+      No expiry — the docs state a settled transaction "can be refunded at any time".
+      Refunding more than the original amount throws.
+    window_stated: true
+    docs: https://docs.confidolegal.com/docs/payments-lifecycle/voids-and-refunds
+    note: Surcharge is refunded proportionally to the refund amount.
+  - write: payment, either
+    reversal: transactionVoidOrRefund
+    partial: false
+    window: picks void or refund automatically; partial amounts not supported
+    window_stated: true
+    docs: https://docs.confidolegal.com/docs/payments-lifecycle/voids-and-refunds
+  - write: stored-payment-method charge
+    reversal: storedPaymentMethodRefund_v2
+    window: not separately stated
+    window_stated: false
+  - write: disbursementCreate
+    reversal: disbursementVoid
+    also: [disbursementReturnToDraft, disbursementDelete]
+    window: >-
+      Not stated as a clock. Governed by status instead — a disbursement can be returned
+      to DRAFT or voided before it reaches DELIVERED; DisbursementStatus also carries
+      EXPIRED and VOID as terminal states.
+    window_stated: false
+  - write: addSubscription
+    reversal: cancelSubscription
+    window: not stated
+    window_stated: false
+  - write: storedDisbursementMethodCreate
+    reversal: storedDisbursementMethodArchive
+    restore: storedDisbursementMethodUnarchive
+    window: not stated
+    window_stated: false
+  - write: storedPaymentMethod activation
+    reversal: deactivateStoredPaymentMethod
+    restore: reactivateStoredPaymentMethod
+    window: not stated
+    window_stated: false
+  asynchronous_reversal:
+    detail: >-
+      A reversal response is not a result. Confido waits up to 30 seconds for the
+      financial institution; if the request has not completed it returns status
+      AWAITING_RESULT and the caller must poll refundRequestGet / voidRequestGet, read
+      the refundRequests / voidRequests fields on the transaction query, or wait for the
+      transaction.refunded / .partially_refunded / .voided webhook.
+    statuses: [CREATED, REQUEST_PENDING, AWAITING_RESULT, ERROR, TXN_FAILED, PARTIAL_SUCCESS, SUCCESS]
+  not_caller_initiated:
+    detail: >-
+      ACH payments can be REVERSED BY THE BANK after settlement, pulling back funds that
+      already reached the firm. Partial returns do not exist. This is not a reversal an
+      agent can request or prevent; subscribe to transaction.ach_returned to learn of it.
+    docs: https://docs.confidolegal.com/docs/payments-lifecycle/ach-returns
+dry_run_mode:
+  supported: false
+  detail: >-
+    No dry-run or simulate flag on any mutation. The nearest equivalents are the
+    transactionVoidDetails preflight query (which reports what a void would affect
+    without performing it) and the whole sandbox environment, which mirrors the schema
+    while simulating money movement.
+  see: sandbox/confido-legal-sandbox.yml
+pagination:
+  style: relay-cursor-connections
+  detail: >-
+    The schema exposes Relay-style Connection/Edge/PageInfo types for the paged
+    collections (AggregatePaymentLinkConnection, PaymentConnection, TransactionConnection,
+    PaymentLinkConnection, SubscriptionConnection, ClientConnection, MatterConnection,
+    ContactConnection, StoredPaymentMethodConnection, FirmConnection), alongside plain
+    *ListResult wrappers on the top-level *List queries.
+  response_fields: [pageInfo, edges, node, cursor]
+  ordering: OrderDir enum (ASC | DESC)
+  method: derived
+  source: graphql/confido-legal-introspection.json
+  note: >-
+    Confido publishes no prose pagination reference; this is read off the schema, not
+    from documentation.
+field_selection:
+  detail: >-
+    Native to GraphQL — the caller selects exactly the fields it needs. There is no
+    separate expansion or sparse-fieldset parameter.
+metadata:
+  supported: true
+  detail: >-
+    A `metadata` object appears on disbursements (and is echoed in the
+    disbursement.updated webhook payload) for caller-supplied key/values.
+  fields: [metadata, externalId]
+  note: >-
+    Several resources also carry `externalId` for correlating a Confido record with the
+    partner system's own identifier.
+request_tracing:
+  request_id_header: none published
+  detail: >-
+    Confido documents no request-id or correlation header. For webhooks, `eventId` is the
+    stable per-event identifier; for API calls, correlate on the resource id or on your
+    own `externalId`.
+versioning:
+  scheme: unversioned-graphql-with-field-deprecation
+  url_version: >-
+    A /v2 path segment appears in the Confido documentation and in the provider's own
+    agent skill (api.gravity-legal.com/v2, api.sandbox.gravity-legal.com/v2), while the
+    docs Overview page names the bare roots. Both forms resolve to the same schema; the
+    bare root is what apis.yml records and what introspection was performed against.
+  breaking_change_policy: >-
+    Evolution is by field deprecation rather than by version bump. 26 schema members carry
+    @deprecated with a named replacement (see lifecycle/confido-legal-lifecycle.yml).
+  sunset_header: not published
+  see: lifecycle/confido-legal-lifecycle.yml
+error_envelope:
+  format: graphql-errors
+  rfc9457: false
+  detail: >-
+    Errors arrive in the GraphQL `errors[]` array. Observed live responses carry
+    `message`, `extensions.code`, a duplicated top-level `code`, and a numeric `status`.
+    A GraphQL error can be returned alongside HTTP 200, so a 200 is not a success signal —
+    always inspect `errors`.
+  see: errors/confido-legal-problem-types.yml
+rate_limit_signaling:
+  limit: 500 requests per minute per firmId or partnerId
+  concurrency: 10 concurrent requests per firmId or partnerId
+  exhaustion_status: 429
+  headers: none published
+  retry_guidance: >-
+    Wait at least 60 seconds, then exponential backoff (60s, 120s, capped at a few
+    minutes) for bursts or migration workloads.
+  docs: https://docs.confidolegal.com/docs/introduction/api-limits
+  see: rate-limits/confido-legal-rate-limits.yml
+  gap: >-
+    No X-RateLimit-* or RateLimit-* response headers are documented, and no Retry-After is
+    promised. An agent cannot read remaining budget at runtime — it can only observe the
+    429 after the fact and apply the documented backoff.

@@ -1,0 +1,124 @@
+generated: '2026-09-05'
+method: probed
+source: live POST probes of https://api.gravity-legal.com/ + graphql/confido-legal-introspection.json + https://docs.confidolegal.com/
+provider: Confido Legal
+providerId: confido-legal
+description: >-
+  Error semantics of the Confido Legal GraphQL API, established by probing the live
+  endpoint and by reading the failure enums the schema itself declares. Confido publishes
+  no error-code reference page, so the envelope below was observed rather than documented.
+format: graphql-errors
+rfc9457: false
+content_type: application/json
+envelope:
+  shape: '{"errors":[{"message":..., "locations":[...], "extensions":{"code":...}, "code":..., "status":...}], "data":null}'
+  fields:
+  - name: message
+    type: string
+    note: The only field that actually distinguishes one failure from another.
+  - name: locations
+    type: array
+    note: Present on document validation errors only.
+  - name: extensions.code
+    type: string
+  - name: code
+    type: string
+    note: Duplicate of extensions.code at the top level of the error object.
+  - name: status
+    type: integer
+    note: An in-body status that does not always match the HTTP status of the response.
+critical_finding: >-
+  Every observed error — invalid credential, malformed document, unknown field, empty
+  request — returns extensions.code "INTERNAL_SERVER_ERROR" and an in-body status of 500.
+  The machine-readable code carries no information: a client cannot tell an auth failure
+  from a schema typo without string-matching the human message, and the HTTP status
+  disagrees with the body status (a validation error is HTTP 400 with status 500 inside).
+  Any retry logic built on the code or on the in-body status will misclassify.
+observed:
+- id: invalid-firm-token
+  probed: '2026-09-05'
+  http_status: 500
+  extensions_code: INTERNAL_SERVER_ERROR
+  message: 'Context creation failed: Invalid firm token.'
+  cause: x-api-key present but not a valid Firm token (wrong value, wrong environment, or revoked).
+  remediation: >-
+    Confirm the token has not been revoked under Settings, API Tokens in the portal, and
+    that a sandbox token is not being sent to production. Mint a replacement with
+    firmApiTokenCreate.
+- id: graphql-validation-error
+  probed: '2026-09-05'
+  http_status: 400
+  extensions_code: INTERNAL_SERVER_ERROR
+  message: 'Cannot query field "<field>" on type "Query".'
+  cause: The document references a field that does not exist on the schema.
+  remediation: Validate the document against graphql/confido-legal.graphql before sending.
+- id: empty-operation
+  probed: '2026-09-05'
+  http_status: 400
+  extensions_code: INTERNAL_SERVER_ERROR
+  message: 'GraphQL operations must contain a non-empty `query` or a `persistedQuery` extension.'
+  cause: POST body carried no query.
+  remediation: Send a JSON body with a `query` key.
+- id: csrf-blocked
+  probed: '2026-09-05'
+  http_status: 400
+  message: >-
+    This operation has been blocked as a potential Cross-Site Request Forgery (CSRF).
+  cause: >-
+    Apollo Server CSRF prevention. Any GET, or a POST without a preflight-triggering
+    content type, is refused before it reaches the schema.
+  remediation: >-
+    Send POST with Content-Type: application/json, or the apollo-require-preflight: true
+    header. This is why every /.well-known/ probe against api.gravity-legal.com answers
+    400 rather than 404.
+- id: rate-limited
+  http_status: 429
+  method: searched
+  source: https://docs.confidolegal.com/docs/introduction/api-limits
+  cause: Over 500 requests/minute or 10 concurrent requests for the firmId or partnerId.
+  remediation: >-
+    Wait at least 60 seconds, then exponential backoff (60s, 120s, capped at a few
+    minutes). No Retry-After header is promised.
+domain_failure_states:
+  note: >-
+    Confido expresses most business-level failure in ENUM STATE rather than in an error
+    object. These are the states an agent must treat as failures even on an HTTP 200.
+    Derived from graphql/confido-legal-introspection.json.
+  transaction_status_v2:
+    failure_values: [ERROR, RETURNED, CHARGED_BACK, HELD]
+    reversal_values: [VOIDED, REFUNDED, PARTIALLY_REFUNDED]
+    success_values: [PENDING, FUNDS_IN_TRANSIT, DEPOSITED, SUCCESSFUL]
+  payment_status:
+    values: [error, success, partial_success, failed]
+  request_status:
+    values: [CREATED, REQUEST_PENDING, AWAITING_RESULT, ERROR, TXN_FAILED, PARTIAL_SUCCESS, SUCCESS]
+    note: AWAITING_RESULT is not a failure — it means poll again.
+  txn_request_status:
+    values: [AWAITING_RESULT, CREATED, ERROR, TXN_FAILED, SUCCESS]
+  disbursement_status:
+    failure_values: [FAILED, EXPIRED, VOID]
+  firm_status:
+    failure_values: [DECLINED, HELD, SUSPENDED, INACTIVE]
+  schema_error_type:
+    name: ErrorDescription
+    note: >-
+      The schema declares an ErrorDescription object used inside result payloads, so some
+      operations report failure in `data` rather than in `errors`. Check both.
+  decline_info:
+    name: SpmDeclineInfo
+    note: >-
+      A stored-payment-method decline surfaces through the SpmDeclineInfo object. Confido
+      publishes no public decline-code table, so errors/confido-legal-decline-codes.yml is
+      NOT written — see that gap recorded in this file rather than guessed at.
+gaps:
+- >-
+  No published error-code reference. Everything above is observed or read off the schema.
+- >-
+  No RFC 9457 problem+json. Not a defect for a GraphQL API, but it means no `type` URI an
+  agent can resolve.
+- >-
+  extensions.code is constant across all failure classes, which is the single most
+  actionable improvement available to this API.
+- >-
+  No public decline-code catalogue despite being a card acquirer; SpmDeclineInfo exists in
+  the schema but its code vocabulary is undocumented.

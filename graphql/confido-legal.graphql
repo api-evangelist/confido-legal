@@ -1,0 +1,3734 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+"""
+The type of a bank account.
+"""
+enum AchAccountType {
+  BUSINESS
+  CHECKING
+  SAVINGS
+}
+
+enum AchProcessor {
+  adyen
+  emergepay
+  emergepay_sandbox
+  epmock
+  vericheck
+  vcmock
+}
+
+enum CreditCardProcessor {
+  adyen
+  emergepay
+  emergepay_sandbox
+  epmock
+}
+
+enum DisbursementEventType {
+  ACCEPTED
+  APPROVED
+  FAILED
+  CREATED
+  DELIVERED
+  EXPIRED
+  IDENTITY_ENTERED
+  LOGIN_ATTEMPT
+  MFA_ENTERED
+  UNAPPROVED
+  UPDATED
+  VOID
+}
+
+enum DisbursementIdentitySource {
+  CLIENT
+  PRIMARY_CONTACT
+  CONTACT
+  MANUAL
+}
+
+enum DisbursementIdentityType {
+  EMAIL
+  PHONE
+}
+
+enum DisbursementMethod {
+  ACH
+  ACH_DIRECT
+  ACH_PLAID
+  PAYPAL
+  PUSH_TO_CARD
+  REQUEST_CHECK
+  ZELLE
+}
+
+enum DisbursementMethodAchVerifyStatus {
+  DEPOSIT_ONLY
+  PENDING
+  VERIFIED
+}
+
+enum DisbursementStatus {
+  APPROVED
+  CHECK_REQUESTED
+  DELIVERED
+  DRAFT
+  EXPIRED
+  FAILED
+  FUNDS_IN_TRANSIT
+  REQUEST_PENDING
+  VOID
+}
+
+enum DocumentStatus {
+  ACCEPTANCE_NOT_REQUIRED
+  ACCEPTED
+  AWAITING_ACCEPTANCE
+}
+
+"""
+The status of a firm
+"""
+enum FirmStatus {
+  CREATED
+  APP_IN_DRAFT
+  APP_SUBMITTED
+  APP_IN_REVIEW
+  ACTIVE
+  DECLINED
+  HELD
+  INACTIVE
+  SUSPENDED
+}
+
+enum OrderDir {
+  ASC
+  DESC
+}
+
+enum PaymentMethod {
+  ACH
+  CHECK
+  CREDIT
+  DEBIT
+  PUSH_TO_CARD
+  UNKNOWN
+}
+
+"""
+The payment method to use for completing a payment session.
+"""
+enum PaymentSessionMethod {
+  ACH
+  CREDIT
+  DEBIT
+}
+
+enum PaymentStatus {
+  error
+  success
+  partial_success
+  failed
+}
+
+enum ProcessingEnv {
+  production
+  sandbox
+}
+
+enum ReportingPeriod {
+  yearly
+  monthly
+  daily
+}
+
+enum RequestStatus {
+  CREATED
+  REQUEST_PENDING
+  AWAITING_RESULT
+  ERROR
+  TXN_FAILED
+  PARTIAL_SUCCESS
+  SUCCESS
+}
+
+enum SdmLinkStatus {
+  COMPLETED
+  EXPIRED
+  PENDING
+  VISITED
+}
+
+enum SurchargeRegion {
+  AL
+  AK
+  AR
+  AS
+  AZ
+  CA
+  CO
+  CT
+  DC
+  DE
+  FL
+  GA
+  GU
+  HI
+  IA
+  ID
+  IL
+  IN
+  KS
+  KY
+  LA
+  MA
+  MD
+  ME
+  MI
+  MN
+  MO
+  MP
+  MS
+  MT
+  NC
+  ND
+  NE
+  NH
+  NJ
+  NM
+  NV
+  NY
+  OH
+  OK
+  OR
+  PA
+  PR
+  RI
+  SD
+  SC
+  TN
+  TT
+  TX
+  UM
+  UT
+  VA
+  VI
+  VT
+  WA
+  WI
+  WV
+  WY
+}
+
+enum TransactionPaymentMethod {
+  ACH
+  CARD
+  CREDIT
+  DEBIT
+  MANUAL
+  PAYPAL
+  PUSH_TO_CARD
+  ZELLE
+}
+
+enum TransactionStatus2 {
+  CHARGED_BACK
+  DEPOSITED
+  ERROR
+  FUNDS_IN_TRANSIT
+  HELD
+  PARTIALLY_REFUNDED
+  PENDING
+  REFUNDED
+  RETURNED
+  SUCCESSFUL
+  VOIDED
+}
+
+enum TransactionType {
+  achPayment
+  achReturn
+  ccPayment
+  chargeback
+  chargeback_reversal
+  error
+  manualPayment
+  payout
+  refund
+  reverse
+  transfer
+  void
+}
+
+enum TxnRequestStatus {
+  AWAITING_RESULT
+  CREATED
+  ERROR
+  TXN_FAILED
+  SUCCESS
+}
+
+"""
+Defines the input parameters for adding a new Address. This is
+used internally through adding other entities such as Clients and
+Contacts.
+"""
+input AddAddressInput {
+  """
+  (Optional) The city for this Address.
+  """
+  city: String
+  """
+  (Optional) The country for this Address. Defaults to US.
+  """
+  country: String
+  """
+  (Optional) The first line of the Address.
+  """
+  line1: String
+  """
+  (Optional) The second line of the Address, if necessary.
+  """
+  line2: String
+  """
+  (Optional) The state for this Address.
+  """
+  state: String
+  """
+  (Optional) The zip for this Address.
+  """
+  zip: String
+}
+
+input AddAggregatePaymentLinkInput {
+  externalId: String
+  memo: String
+  paymentLinkIds: [String!]!
+}
+
+"""
+Defines the structure for adding an amount.
+"""
+input AddAmountInput {
+  """
+  (Required) Integer value in cents.
+  """
+  amount: Int!
+  """
+  (Required) A uuidv4 id for the Bank Account to associate the amount with.
+  """
+  bankAccountId: String!
+}
+
+input AddClientInput {
+  """
+  (Optional) The address of the Client.
+  """
+  address: AddAddressInput
+  """
+  (Required) The name of the Client. This should be the default display name.
+  """
+  clientName: String!
+  """
+  (Optional) The primary email address for contacting this Client.
+  """
+  email: String
+  """
+  (Optional) An externalId for querying down the road.
+  """
+  externalId: String
+  """
+  (Required) The Firm to associate this Client with.
+  """
+  firmId: String
+  """
+  (Optional) The first name of the Client.
+  """
+  firstName: String
+  """
+  (Optional) The last name of the Client.
+  """
+  lastName: String
+  """
+  (Optional) The primary phone number of the Client.
+  """
+  phone: String
+  """
+  (Optional) The primary contact to create and attach to this Client.
+  """
+  primaryContact: AddPrimaryContactInput
+  qbCustomerRef: String
+  qbRealmId: String
+  """
+  (Optional) Wether or not to default surcharging on payments for this
+  Client. If undefined, defaults to the Firm's settings.
+  """
+  surchargeEnabled: Boolean
+}
+
+input AddContactInput {
+  """
+  (Optional) The address to associate with the Contact.
+  """
+  address: AddAddressInput
+  """
+  (Required) The uuidv4 id for the Client to associate the Contact with.
+  """
+  clientId: ID!
+  """
+  (Optional) The email for this Contact.
+  """
+  email: String
+  """
+  (Required) The first name of the Contact.
+  """
+  firstName: String!
+  """
+  (Optional) Wether or not the Contact is a primary Contact. If null,
+  defaults to false. When true, updates the Clients primary Contact to
+  this Contact.
+  """
+  isPrimaryContact: Boolean
+  """
+  (Optional) The last name of the Contact.
+  """
+  lastName: String
+  """
+  (Optional) The phone number of the Contact.
+  """
+  phone: String
+}
+
+"""
+Defines the input object for adding a Matter. The Client and secondary Client
+can not be changed in the future so be sure to assign them correctly.
+"""
+input AddMatterInput {
+  """
+  A unique uuidv4 value for this object.
+  """
+  clientId: ID!
+  """
+  (Optional) An externalId for querying down the road.
+  """
+  externalId: String
+  """
+  A descriptive name for the Matter.
+  """
+  name: String!
+  """
+  (Optional) A secondary Client to associate with the Matter.
+  """
+  secondaryClientId: ID
+}
+
+input AddPaymentLinkInput {
+  amounts: [AddAmountInput!]
+  clientId: ID!
+  externalId: ID
+  matterId: ID
+  memo: String
+  operating: Int
+  partialPaymentAllowed: Boolean
+  paymentMethodsAllowed: [PaymentMethod!]
+  qbEnabled: Boolean
+  sendReceipts: Boolean
+  surchargeEnabled: Boolean
+  trust: Int
+}
+
+input AddPrimaryContactInput {
+  address: AddAddressInput
+  email: String
+  firstName: String!
+  lastName: String
+  phone: String
+}
+
+input AddScheduleInput {
+  """
+  An object that defines when the subscription ends. This object should contain one (and
+  only one) of the following keys: 'amountPaid', 'never', 'on', or 'payments'.
+  
+  When the subscription ends is updated, the original termination type can not be changed.
+  For example, if the subscription ends was 'amountPaid', you can not update the ends to
+  'never' or 'on'.
+  """
+  ends: SubscriptionEndsInput!
+  """
+  The frequency of the subscription. This object should contain one (and only one) of the
+  following keys: 'biweekly', 'monthly', 'weekly', or 'yearly'.
+  """
+  frequency: SubscriptionFrequencyInput!
+}
+
+input AddSubscriptionInput {
+  """
+  (Optional) A list of one amount object. This represents the amount that will be charged
+  on each billing cycle. Subscriptions can only have a single bank account/amount
+  at this time.
+  
+  If this field is provided, operating and trust must be omitted.
+  """
+  amounts: [AddAmountInput!]
+  """
+  The id of a Client to associate the subscription with.
+  """
+  clientId: String!
+  """
+  (Optional) The id of a Matter to associate the subscription with.
+  """
+  matterId: String
+  """
+  (Optional) The payment methods to allow a client to input when activating the subscription.
+  
+  If this is omitted, the default firm payment methods will be used.
+  """
+  paymentMethods: [PaymentMethod!]
+  """
+  (Optional) The amount in cents to charge the client on each billing cycle. The amount
+  will be deposited into the firm's default operating account.
+  
+  If this field is provided, amounts and trust must be omitted.
+  """
+  operating: Int
+  """
+  An object defining the schedule of the subscription. When the subscription charges the
+  client and when the subscription is considered fulfilled.
+  """
+  schedule: AddScheduleInput!
+  """
+  The date in which the first subscription charge will be made. This will be
+  a string value of the form 'YYYY-MM-DD'.
+  """
+  startDate: String
+  """
+  (Optional) The id of a stored payment method to set on the subscription. If this is
+  provided, the status of the subscription will be 'active' immediately.
+  
+  If this is omitted, the subscription url that is returned should be used
+  to collect the payment method from a firm's client.
+  """
+  storedPaymentMethodId: String
+  """
+  (Optional) The amount in cents to charge the client on each billing cycle. The amount
+  will be deposited into the firm's default trust account.
+  
+  If this field is provided, amounts and operating must be omitted.
+  """
+  trust: Int
+}
+
+input CancelSubscriptionInput {
+  subscriptionId: String!
+}
+
+input ClientUpsertInput {
+  """
+  A uuid v4. This id is first used to lookup the client, then used as the id of a new client if one is not found.
+  """
+  id: String!
+  clientName: String!
+  email: String
+  firstName: String
+  lastName: String
+  phone: String
+}
+
+input CompleteSavePaymentMethodSessionInput {
+  accountType: String
+  clientId: String
+  clientNotes: String
+  nickname: String
+  payerEmail: String
+  payerName: String
+  payerZip: String
+  paymentMethod: String!
+  """
+  Internal only; not used for integrations.
+  """
+  recaptchaToken: String
+  savePaymentMethodToken: String!
+}
+
+input CreateFirmInput {
+  mockOnboarding: Boolean
+  name: String
+}
+
+input CreatePaymentTokenInput {
+  """
+  The id of the Bank Account to deposit a one time payment into.
+  """
+  bankAccountId: String
+  """
+  The id of the Payment Link to assign a payment to.
+  """
+  paymentLinkId: String
+}
+
+input CreateSavePaymentMethodTokenInput {
+  clientId: String
+  standingLinkId: String
+  subscriptionId: String
+}
+
+input DateFilterArg {
+  """
+  Any string value that the node Date object can parse. Because of timestamp precision, this is inclusive.
+  """
+  gt: String
+  """
+  Any string value that the node Date object can parse. Because of timestamp precision, this is exclusive.
+  """
+  lt: String
+}
+
+input DeactivateStoredPaymentMethodInput {
+  id: String!
+}
+
+input DisbursementCreateInput {
+  allowedMethods: [DisbursementMethod!]
+  """
+  The amount in cents to disburse to the client. Must be greater than $0.00 and less than $100,000
+  """
+  amount: Int!
+  authorizedIdentities: [DisbursementIdentityInput!]
+  clientId: String
+  clientUpsert: ClientUpsertInput
+  """
+  The id of the stored disbursement method to send funds to.
+  """
+  destinationMethodId: String
+  """
+  If null, uses firm's default security settings.
+  """
+  enhancedSecurity: Boolean
+  """
+  If null, uses firm's default expiry days settings
+  """
+  expiryDays: Int
+  """
+  The id of the bank account to pull the funds out of for the disbursement.
+  """
+  fundingAccountId: String!
+  """
+  Optional client-supplied ID for the new disbursement. Must be a valid UUIDv4 string. If null, the ID will be generated.
+  """
+  id: String
+  """
+  Firm-internal note for the disbursement. Not shown on receipts or to payees.
+  """
+  internalMemo: String
+  matterId: String
+  matterUpsert: MatterUpsertInput
+  """
+  Additional text included on the vendor receipt to help explain what the disbursement was for.
+  """
+  receiptMemo: String
+  metadata: JSON
+  """
+  Defaults to 'DRAFT'.
+  """
+  status: DisbursementStatus
+  vendorId: String
+  vendorUpsert: VendorUpsertInput
+}
+
+input DisbursementIdentityInput {
+  """
+  Used to determine if the identity was pulled from a known source. Defaults to MANUAL.
+  """
+  source: DisbursementIdentitySource
+  type: DisbursementIdentityType!
+  value: String!
+}
+
+input DisbursementInitiateTxnToSdmInput {
+  disbursementId: String!
+  sdmId: String!
+}
+
+input DisbursementUpdateInput {
+  id: String!
+  allowedMethods: [DisbursementMethod!]
+  """
+  The amount in cents to disburse to the client. Must be greater than $0.00 and less than $100,000
+  """
+  amount: Float
+  authorizedIdentities: [DisbursementIdentityInput!]
+  clientId: String
+  clientUpsert: ClientUpsertInput
+  """
+  The id of the stored disbursement method to send funds to. Pass null to clear.
+  """
+  destinationMethodId: String
+  """
+  If null, uses firm's default enhanced security settings.
+  """
+  enhancedSecurity: Boolean
+  expiresAt: DateTimeISO
+  """
+  If null, uses firm's default expiry days settings
+  """
+  expiryDays: Int
+  """
+  Max failed transaction attempts before disbursement is set to FAILED. FIRM_ADMIN only. Increase to allow more attempts.
+  """
+  maxFailedTxns: Int
+  """
+  The id of the bank account to pull the funds out of for the disbursement.
+  """
+  fundingAccountId: String
+  """
+  Firm-internal note for the disbursement. Not shown on receipts or to payees. Pass null to clear.
+  """
+  internalMemo: String
+  matterId: String
+  matterUpsert: MatterUpsertInput
+  """
+  Additional text included on the vendor receipt to help explain what the disbursement was for. Pass null to clear.
+  """
+  receiptMemo: String
+  metadata: JSON
+  vendorId: String
+  vendorUpsert: VendorUpsertInput
+  """
+  Defaults to 'DRAFT'.
+  """
+  status: DisbursementStatus
+}
+
+input DocumentAcceptInput {
+  acceptorEmail: String!
+  documentId: String!
+}
+
+input FirmApiTokenCreateInput {
+  firmId: String
+  nickname: String
+}
+
+input FirmApiTokenExchangeCodeInput {
+  code: String!
+  nickname: String
+}
+
+input FirmApiTokenUpdateInput {
+  firmApiTokenId: String!
+  nickname: String
+  revoked: Boolean
+}
+
+input FirmBrandingUpdateHeaderImgInput {
+  contentType: String!
+  filename: String!
+  s3Key: String!
+}
+
+input FirmBrandingUpdateInput {
+  backgroundColor: String
+  centerColor: String
+  footerText: String
+  headerImg: FirmBrandingUpdateHeaderImgInput
+  headerName: String
+}
+
+input FirmUpdateInput {
+  defaultOperatingId: String
+  defaultTrustId: String
+  feeBankAccountId: String
+}
+
+input IntFilterArg {
+  eq: Int
+  gt: Int
+  gte: Int
+  lt: Int
+  lte: Int
+}
+
+input InviteUserInput {
+  email: String!
+  firmId: String
+  firstName: String!
+  lastName: String!
+  role: String!
+}
+
+input MatterCreateInput {
+  """
+  A unique uuidv4 value for this object.
+  """
+  clientId: String!
+  """
+  (Optional) An externalId for querying down the road.
+  """
+  externalId: String
+  """
+  Optional metadata for the matter. Must be of type Record<string, string>.
+  """
+  metadata: JSON
+  """
+  A descriptive name for the Matter.
+  """
+  name: String!
+  """
+  (Optional) A secondary Client to associate with the Matter.
+  """
+  secondaryClientId: String
+}
+
+input MatterUpdateInput {
+  """
+  (Required) The uuidv4 id of the Matter.
+  """
+  id: String!
+  """
+  (Optional) An externalId for querying down the road.
+  """
+  externalId: String
+  """
+  Optional metadata for the matter. Must be of type Record<string, string>.
+  """
+  metadata: JSON
+  """
+  A descriptive name for the Matter.
+  """
+  name: String
+}
+
+input MatterUpsertInput {
+  """
+  A uuid v4. This id is first used to lookup the matter, then used as the id of a new matter if one is not found.
+  """
+  id: String!
+  clientId: String!
+  name: String!
+}
+
+input PayRequestInput {
+  """
+  The firm ID to look up within (optional for firm users)
+  """
+  firmId: String
+  """
+  The external ID to look up
+  """
+  externalId: String!
+}
+
+input PaymentSessionCompleteInput {
+  bankAccountType: AchAccountType
+  amount: Int!
+  """
+  Internal only; not used for integrations.
+  """
+  captchaToken: String
+  clientId: String
+  """
+  Optional external identifier for the payment request
+  """
+  externalId: String
+  matterId: String
+  method: PaymentSessionMethod!
+  payerEmail: String
+  payerEmails: [String!]
+  payerName: String
+  payerZip: String
+  paymentSessionToken: String!
+  recaptchaToken: String
+  savePaymentMethod: Boolean
+  """
+  sendReceipt=true will definitely send a receipt and sendReceipt=false will definitely not send a receipt. Unset will fallback to Firm's defaults.
+  """
+  sendReceipt: Boolean
+  """
+  Surcharge must be allowed at the firm level. If not null, overrides the default surcharge settings for this payment.
+  """
+  surchargeEnabled: Boolean
+  """
+  Overrides the default surcharge region for this payment. The surcharge region determines the surcharge rate.
+  """
+  surchargeRegion: SurchargeRegion
+}
+
+input PaymentSessionCreateInput {
+  aggregateLinkId: String
+  bankAccountId: String
+  paymentLinkId: String
+  standingLinkId: String
+}
+
+input PaymentSettingsUpdateInput {
+  firmId: String
+  achDefaulted: Boolean
+  achEnabled: Boolean
+  chargebackBankAccountId: String
+  checkDefaulted: Boolean
+  checkEnabled: Boolean
+  creditDefaulted: Boolean
+  creditEnabled: Boolean
+  debitDefaulted: Boolean
+  debitEnabled: Boolean
+  paylinkPartialPaymentAllowed: Boolean
+  requireEmailForSpm: Boolean
+  saveMethodCheckboxVisible: Boolean
+  saveMethodDefaulted: Boolean
+  surchargeDefaulted: Boolean
+  surchargeEnabled: Boolean
+}
+
+input ReactivateStoredPaymentMethodInput {
+  id: String!
+}
+
+"""
+The object for recording a manual payment on a PaymentLink.
+"""
+input RecordManualPaymentInput {
+  """
+  A list of amounts to make the manual payment on. If operating or trust
+  is also defined, a UserInputError will be thrown.
+  """
+  amounts: [AddAmountInput!]
+  """
+  [Optional] The email address to link to the manual payment.
+  """
+  billingEmail: String
+  """
+  [Optional] The name to link to the manual payment.
+  """
+  billingName: String
+  """
+  The amount in cents to deposit into the default operating account. If
+  amounts is also defined, a UserInputError will be thrown.
+  """
+  operating: Int
+  """
+  [Required] The id of the PaymentLink to make the manual payment on.
+  """
+  paymentLinkId: ID!
+  """
+  [Optional] A statement to add to the manual payment for future reference.
+  """
+  statement: String
+  """
+  The amount in cents to deposit into the default trust account. If
+  amounts is also defined, a UserInputError will be thrown.
+  """
+  trust: Int
+}
+
+input RefundTransactionInput {
+  """
+  The amount in cents to refund for a partial refund. If null, the entire transaction will be refunded.
+  """
+  amount: Int
+  """
+  sendReceipt=true will definitely send a receipt and sendReceipt=false will definitely not send a receipt. Unset will fallback to Firm's defaults.
+  """
+  sendReceipt: Boolean
+  """
+  The id of the transaction to refund.
+  """
+  transactionId: String!
+}
+
+"""
+Defines the parameters for removing a Contact.
+"""
+input RemoveContactInput {
+  """
+  (Required) The uuidv4 id of the Contact to remove.
+  """
+  contactId: ID!
+}
+
+"""
+Defines the parameters for removing a PaymentLink.
+"""
+input RemovePaymentLinkInput {
+  """
+  (Required) The uuidv4 id of the PaymentLink to remove.
+  """
+  id: ID!
+}
+
+input ResendUserInviteEmailInput {
+  email: String!
+  firmId: String
+}
+
+input RunPaymentInput {
+  """
+  The type of bank account for an ACH payment. Possible values: 'checking' or 'savings'. Defaults to 'checking'.
+  """
+  accountType: String
+  amount: Int!
+  payerEmail: String
+  payerEmails: [String!]
+  payerName: String
+  payerZip: String
+  paymentMethod: String!
+  paymentToken: String!
+  savePaymentMethod: Boolean
+  """
+  sendReceipt=true will definitely send a receipt and sendReceipt=false will definitely not send a receipt. Unset will fallback to Firm's defaults.
+  """
+  sendReceipt: Boolean
+}
+
+"""
+The SPM Payment Input is used to create a new payment on the Stored Payment Method
+with the corresponding id. A valid input must define either operating, trust, or
+the amount. If operating or trust are defined, the Firm's default Bank Account for
+that category will be used.
+"""
+input SPMPaymentInput {
+  """
+  An amount object that defines the amount of the payment and which Bank Account to
+  deposit the payment into.
+  """
+  amount: AddAmountInput
+  """
+  (Optional) Defines an email to send a receipt to for the payment on
+  the Stored Payment Method. Email must be valid or the request will error out.
+  """
+  emailForReceipt: String
+  """
+  Optional external identifier for the payment request
+  """
+  externalId: String
+  """
+  (Optional) An optional Matter id to link the payment to.
+  """
+  matterId: ID
+  """
+  An integer value in cents to charge the Stored Payment Method and deposit into the default
+  operating Bank Account.
+  """
+  operating: Int
+  """
+  sendReceipt=true will definitely send a receipt and sendReceipt=false will definitely not send a receipt. Unset will fallback to Firm's defaults.
+  """
+  sendReceipt: Boolean
+  """
+  The id of the Stored Payment Method to charge.
+  """
+  storedPaymentMethodId: ID!
+  """
+  (Optional) Whether or not to add surcharging to the charge. If null, the Firm's default setting
+  will be used.
+  """
+  surchargeEnabled: Boolean
+  """
+  Override the surcharge region for this payment. The surcharge region determines the applicable surcharge rate.
+  """
+  surchargeRegion: SurchargeRegion
+  """
+  An integer value in cents to charge the Stored Payment Method and deposit into the default
+  trust Bank Account.
+  """
+  trust: Int
+}
+
+input SandboxOnlyCreateMockStatementInput {
+  firmId: String
+  """
+  The month in the format YYYY-MM to create a statement for.
+  """
+  month: String!
+}
+
+input SandboxOnlyDisbursementExpireInput {
+  id: String!
+}
+
+input SandboxOnlyFirmSurchargingUpdateInput {
+  allowed: Boolean
+  defaulted: Boolean
+  firmId: String
+  rate: Float
+}
+
+input SandboxOnlyMoveTransactionInput {
+  transactionId: String!
+}
+
+input SandboxOnlyTriggerAchReturnInput {
+  """
+  The id of the transaction to trigger an ACH return for.
+  """
+  transactionId: String!
+}
+
+input SandboxOnlyTriggerChargebackInput {
+  """
+  The id of the card payment transaction to simulate an Adyen chargeback for.
+  """
+  transactionId: String!
+  """
+  Optional chargeback amount in cents. Defaults to full transaction amount.
+  """
+  amount: Int
+}
+
+input SandboxOnlyTriggerChargebackReversalInput {
+  """
+  The id of the chargeback transaction to simulate an Adyen chargeback reversal for.
+  """
+  transactionId: String!
+  """
+  Optional chargeback reversal amount in cents. Defaults to full transaction amount.
+  """
+  amount: Int
+}
+
+input SandboxOnlyTriggerPrearbitrationLostInput {
+  """
+  The id of the chargeback_reversal transaction to simulate a pre-arbitration lost (second chargeback) for.
+  """
+  transactionId: String!
+  """
+  Optional amount in cents for the second chargeback. Defaults to full transaction amount.
+  """
+  amount: Int
+}
+
+input SandboxOnlyUpdateMockStatement {
+  statementId: String!
+}
+
+input SendPaymentRequestInput {
+  aggregateLinkId: ID
+  bccEmails: [String!]
+  ccEmails: [String!]
+  emails: [String!]!
+  message: String!
+  paymentLinkId: ID
+  subject: String!
+}
+
+input StoredDisbursementMethodCreateInput {
+  clientId: String
+  nickname: String
+  payeeEmail: String!
+  token: String!
+  vendorId: String
+}
+
+input StoredDisbursementMethodLinkCreateInput {
+  allowedMethods: [DisbursementMethod!]
+  clientId: String
+  emailMessage: String
+  expiresInHours: Float
+  sendEmail: Boolean
+  toEmails: [String!]
+  vendorId: String
+}
+
+input StoredDisbursementMethodLinkSendEmailInput {
+  emailMessage: String
+  id: String!
+  toEmails: [String!]!
+}
+
+input StoredDisbursementMethodUpdateInput {
+  id: String!
+  clientId: String
+  nickname: String
+  vendorId: String
+}
+
+input StoredPaymentMethodRefundInput {
+  """
+  The amount in cents to refund
+  """
+  amount: Int!
+  """
+  The id of the bank account to refund the money from
+  """
+  bankAccountId: String!
+  """
+  The id of the stored payment method to send the refund to
+  """
+  spmId: String!
+}
+
+input SubscriptionEndsInput {
+  """
+  (Optional) The amount in cents that needs to be paid on the subscription for the
+  subscription to be fulfilled.
+  """
+  amountPaid: Int
+  """
+  (Optional) If true, the subscription will continue to charge the client indefinitely.
+  """
+  never: Boolean
+  """
+  (Optional) The end date for the subscription. The client will be charged until this
+  date is reached. This should be a date of the form 'YYYY-MM-DD'.
+  """
+  on: String
+  """
+  (Optional) The number of payments the client needs to be charged for the subscription
+  to be fulfilled.
+  """
+  payments: Int
+}
+
+input SubscriptionFrequencyInput {
+  """
+  (Optional) A list of one day of the week on which the client will be charged every
+  other week. Note, future work will allow for multiple days of the week to be specified.
+  
+  Possible values: 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday',
+  and 'sunday'.
+  """
+  biweekly: [String!]
+  """
+  (Optional) A list of one or two days of the month on which the client will be charged.
+  Note, future work will allow for 3+ days of the month to be specified.
+  
+  Possible values: integers between 1 and 31.
+  """
+  monthly: [Int!]
+  """
+  (Optional) A list of one day of the week on which the client will be charged every
+  week. Note, future work will allow for multiple days of the week to be specified.
+  
+  Possible values: 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday',
+  and 'sunday'.
+  """
+  weekly: [String!]
+  """
+  (Optional) A list of one day of the year on which the client will be charged. Note,
+  future work will allow for multiple days of the year to be specified.
+  
+  Possible values: dates of the form 'MM-DD' (e.g. '01-01' for January 1st).
+  """
+  yearly: [String!]
+}
+
+input TransactionRefundInput {
+  """
+  The amount in cents to refund for a partial refund. If null, the max will be refunded.
+  """
+  amount: Int
+  """
+  Optional external identifier for the refund request. Must be unique.
+  """
+  externalId: String
+  """
+  If not null, overrides the firm's default receipt behavior.
+  """
+  sendReceipt: Boolean
+  """
+  The id of the transaction to refund.
+  """
+  transactionId: String!
+}
+
+input TransactionResendReceiptInput {
+  """
+  Optional BCC recipient email address.
+  """
+  bcc: String
+  """
+  Optional CC recipient email address.
+  """
+  cc: String
+  """
+  The id of the transaction to resend a receipt for.
+  """
+  transactionId: String!
+  """
+  Primary recipient email address.
+  """
+  to: String!
+}
+
+input TransactionVoidInput {
+  """
+  Optional external identifier for the void request. Must be unique.
+  """
+  externalId: String
+  """
+  If not null, overrides the firm's default receipt behavior.
+  """
+  sendReceipt: Boolean
+  """
+  The id of the transaction to void.
+  """
+  transactionId: String!
+}
+
+input TransactionVoidOrRefundInput {
+  """
+  Optional external identifier for the void or refund request. Must be unique.
+  """
+  externalId: String
+  """
+  If not null, overrides the firm's default receipt behavior.
+  """
+  sendReceipt: Boolean
+  """
+  The id of the transaction to void or refund.
+  """
+  transactionId: String!
+}
+
+"""
+Defines the update parameters for updating an Address.
+"""
+input UpdateAddressInput {
+  """
+  (Required) The uuidv4 id of the Address.
+  """
+  id: ID!
+  """
+  (Optional) The city for this Address.
+  """
+  city: String
+  """
+  (Optional) The first line of the Address.
+  """
+  line1: String
+  """
+  (Optional) The second line of the Address, if necessary.
+  """
+  line2: String
+  """
+  (Optional) The state for this Address.
+  """
+  state: String
+  """
+  (Optional) The zip for this Address.
+  """
+  zip: String
+}
+
+input UpdateAggregatePaymentLinkInput {
+  id: ID!
+  externalId: String
+  memo: String
+  paymentLinkIds: [String!]
+}
+
+"""
+Defines the structure for updating an amount.
+"""
+input UpdateAmountInput {
+  """
+  (Required) Integer value in cents.
+  """
+  amount: Int!
+  """
+  (Required) A uuidv4 id for the Bank Account to associate the amount with.
+  """
+  bankAccountId: String!
+}
+
+input UpdateBankAccountInput {
+  """
+  (Required) The uuidv4 id of the Bank Account.
+  """
+  id: ID!
+  """
+  (Optional) The new nickname for the bank account.
+  """
+  nickname: String
+}
+
+input UpdateClientInput {
+  """
+  (Required) The uuidv4 id of the Client.
+  """
+  id: ID!
+  """
+  (Optional) If defined, updates or creates an address for the Client
+  to exactly equal what is passed in.
+  """
+  address: AddAddressInput
+  """
+  (Optional) The new value for the client name.
+  """
+  clientName: String
+  """
+  (Optional) The primary email address for contacting this Client.
+  """
+  email: String
+  """
+  (Optional) An externalId for querying down the road.
+  """
+  externalId: String
+  """
+  (Optional) The first name of the Client.
+  """
+  firstName: String
+  """
+  (Optional) The last name of the Client.
+  """
+  lastName: String
+  """
+  (Optional) The primary contact to create and attach to this Client.
+  """
+  phone: String
+  """
+  (Optional) The id of the contact to make the Client's primary contact.
+  """
+  primaryContactId: ID
+  qbCustomerRef: String
+  qbRealmId: String
+  """
+  (Optional) Wether or not to default surcharging on payments for this
+  Client. If undefined, defaults to the Firm's settings.
+  """
+  surchargeEnabled: Boolean
+}
+
+input UpdateContactInput {
+  """
+  (Required) The uuidv4 id of the Contact to update.
+  """
+  id: ID!
+  """
+  (Optional) The address to create or update the Contact with.
+  """
+  address: AddAddressInput
+  """
+  (Optional) The email for this Contact.
+  """
+  email: String
+  """
+  (Optional) The first name of the Contact.
+  """
+  firstName: String
+  """
+  (Optional) Wether or not the Contact is a primary Contact. If null,
+  defaults to false. When true, updates the Clients primary Contact to
+  this Contact.
+  """
+  isPrimaryContact: Boolean
+  """
+  (Optional) The last name of the Contact.
+  """
+  lastName: String
+  """
+  (Optional) The phone number of the Contact.
+  """
+  phone: String
+}
+
+"""
+Defines the input object for updating a Matter.
+"""
+input UpdateMatterInput {
+  """
+  (Required) The uuidv4 id of the Matter.
+  """
+  id: ID!
+  """
+  (Optional) An externalId for querying down the road.
+  """
+  externalId: ID
+  """
+  A descriptive name for the Matter.
+  """
+  name: String
+}
+
+input UpdatePaymentLinkInput {
+  id: ID!
+  amounts: [UpdateAmountInput!]
+  clientId: ID
+  externalId: ID
+  matterId: ID
+  memo: String
+  operating: Int
+  partialPaymentAllowed: Boolean
+  paymentMethodsAllowed: [PaymentMethod!]
+  qbEnabled: Boolean
+  qbInvoiceRef: String
+  qbRealmId: String
+  sendReceipts: Boolean
+  trust: Int
+}
+
+input UpdateScheduleInput {
+  """
+  (Optional) 
+  An object that defines when the subscription ends. This object should contain one (and
+  only one) of the following keys: 'amountPaid', 'never', 'on', or 'payments'.
+  
+  When the subscription ends is updated, the original termination type can not be changed.
+  For example, if the subscription ends was 'amountPaid', you can not update the ends to
+  'never' or 'on'.
+  """
+  ends: SubscriptionEndsInput
+  """
+  (Optional) 
+  The frequency of the subscription. This object should contain one (and only one) of the
+  following keys: 'biweekly', 'monthly', 'weekly', or 'yearly'.
+  """
+  frequency: SubscriptionFrequencyInput
+}
+
+input UpdateStoredPaymentMethodInput {
+  """
+  (Required) The uuidv4 id of the Stored Payment Method.
+  """
+  id: ID!
+  defaultEmail: String
+  """
+  (Required) A string value representing a new name for the Stored
+  Payment Method.
+  """
+  nickname: String
+}
+
+input UpdateSubscriptionInput {
+  """
+  (Optional) A list of one amount object. This represents the amount that will be charged
+  on each billing cycle. Subscriptions can only have a single bank account/amount
+  at this time.
+  
+  If this field is provided, operating and trust must be omitted.
+  """
+  amounts: [AddAmountInput!]
+  """
+  (Required) The uuidv4 id of the Subscription.
+  """
+  id: String!
+  """
+  (Optional) The id of a Matter to associate the subscription with.
+  """
+  matterId: String
+  """
+  (Optional) The amount in cents to charge the client on each billing cycle. The amount
+  will be deposited into the firm's default operating account.
+  
+  If this field is provided, amounts and trust must be omitted.
+  """
+  operating: Int
+  """
+  (Optional) 
+  An object defining the schedule of the subscription. When the subscription charges the
+  client and when the subscription is considered fulfilled.
+  """
+  schedule: UpdateScheduleInput
+  """
+  (Optional) The id of a stored payment method to set on the subscription. If this is
+  provided, the status of the subscription will be 'active' immediately.
+  
+  If this is omitted, the subscription url that is returned should be used
+  to collect the payment method from a firm's client.
+  """
+  storedPaymentMethodId: String
+  """
+  (Optional) The amount in cents to charge the client on each billing cycle. The amount
+  will be deposited into the firm's default trust account.
+  
+  If this field is provided, amounts and operating must be omitted.
+  """
+  trust: Int
+}
+
+input VendorAddressInput {
+  city: String
+  country: String
+  line1: String
+  line2: String
+  state: String
+  zip: String!
+}
+
+input VendorContactInput {
+  email: String
+  isDefault: Boolean
+  name: String!
+  phone: String
+}
+
+input VendorCreateInput {
+  """
+  At least one address with a ZIP code is required.
+  """
+  addresses: [VendorAddressInput!]!
+  businessType: String
+  """
+  At least one contact with a name is required.
+  """
+  contacts: [VendorContactInput!]!
+  name: String!
+}
+
+input VendorUpdateInput {
+  """
+  When provided, at least one address with a ZIP code is required.
+  """
+  addresses: [VendorAddressInput!]
+  businessType: String
+  """
+  When provided, at least one contact with a name is required.
+  """
+  contacts: [VendorContactInput!]
+  id: String!
+  name: String
+}
+
+input VendorUpsertInput {
+  """
+  At least one address with a ZIP code is required.
+  """
+  addresses: [VendorAddressInput!]!
+  """
+  At least one contact with a name is required.
+  """
+  contacts: [VendorContactInput!]!
+  """
+  A uuid v4. This id is first used to lookup the vendor, then used as the id of a new vendor if one is not found.
+  """
+  id: String!
+  name: String!
+}
+
+input VoidOrRefundTransactionInput {
+  """
+  sendReceipt=true will definitely send a receipt and sendReceipt=false will definitely not send a receipt. Unset will fallback to Firm's defaults.
+  """
+  sendReceipt: Boolean
+  """
+  The id of the transaction to void or refund.
+  """
+  transactionId: String!
+}
+
+input VoidTransactionInput {
+  """
+  sendReceipt=true will definitely send a receipt and sendReceipt=false will definitely not send a receipt. Unset will fallback to Firm's defaults.
+  """
+  sendReceipt: Boolean
+  """
+  The id of the transaction to void.
+  """
+  transactionId: String!
+}
+
+input WebhookEventResendInput {
+  eventId: String!
+  webhookUrlId: String!
+}
+
+input WebhookUrlAdvancedSettingsInput {
+  removeUserAgentHeader: Boolean
+}
+
+input WebhookUrlCreateInput {
+  advancedSettings: WebhookUrlAdvancedSettingsInput
+  enabledWebhooks: [String!]!
+  secret: String
+  url: String!
+}
+
+input WebhookUrlUpdateInput {
+  id: String!
+  advancedSettings: WebhookUrlAdvancedSettingsInput
+  disabled: Boolean
+  enabledWebhooks: [String!]
+  secret: String
+  url: String
+}
+
+interface Node {
+  id: ID!
+}
+
+type ACHPaymentsReport {
+  payments: TransactionMetrics!
+  refunds: TransactionMetrics!
+  returns: TransactionMetrics!
+}
+
+"""
+(FROZEN) An Address is in various entities (Client, Contact, etc.) to define where
+the entity is located.
+"""
+type Address {
+  """
+  A unique uuidv4 value for this object.
+  """
+  id: ID
+  """
+  (Nullable) The city for this Address.
+  """
+  city: String
+  """
+  (Nullable) The country for this Address. Defaults to US.
+  """
+  country: String
+  """
+  (Nullable) The first line for this Address.
+  """
+  line1: String
+  """
+  (Nullable) The second line for this Address.
+  """
+  line2: String
+  """
+  (Nullable) The state for this Address.
+  """
+  state: String
+  """
+  (Nullable) The zip code for this Address.
+  """
+  zip: String
+}
+
+type AggregatePaymentLink implements Node {
+  id: ID!
+  balance: Balance!
+  client: Client!
+  createdOn: DateTimeISO!
+  externalId: ID
+  firm: Firm!
+  memo: String
+  paymentLinks: [PaymentLink!]!
+  paymentMethodsAllowed: [PaymentMethod!]
+  status: String!
+  transactions(createdAfter: String, after: String, first: Int = 10, orderDirection: String = "ASC"): TransactionConnection!
+  url: String!
+}
+
+type AggregatePaymentLinkConnection {
+  edges: [AggregatePaymentLinkEdge!]!
+  pageInfo: PageInfo!
+}
+
+type AggregatePaymentLinkEdge {
+  cursor: String!
+  node: AggregatePaymentLink!
+}
+
+"""
+(FROZEN) Defines the amount object used commonly when referring to charging a specific Bank Account.
+"""
+type Amount implements Node {
+  """
+  A unique uuidv4 value for this object.
+  """
+  id: ID!
+  """
+  Integer value in cents.
+  """
+  amount: Int!
+  """
+  A uuidv4 id for the Bank Account to associate the amount with.
+  """
+  bankAccount: BankAccount!
+}
+
+"""
+(FROZEN) Defines payment metrics for an entity. Used to look at the historical and current
+state for a specific entity (Client, Matter, etc.). A balance will always be
+attached to another entity and describes the data of that parent entity.
+"""
+type Balance {
+  """
+  The total outstanding amount in cents for all operating Bank Accounts for the parent entity.
+  """
+  operatingOutstanding: Int!
+  """
+  The total amount paid in cents to all operating Bank Accounts for the parent entity.
+  """
+  operatingPaid: Int!
+  """
+  The total outstanding amount in cents for all Bank Accounts for the parent entity.
+  """
+  totalOutstanding: Int!
+  """
+  The total amount paid in cents for all Bank Accounts for the parent entity.
+  """
+  totalPaid: Int!
+  """
+  The total outstanding amount in cents for all trust Bank Accounts for the parent entity.
+  """
+  trustOutstanding: Int!
+  """
+  The total amount paid in cents for all Bank Accounts for the parent entity.
+  """
+  trustPaid: Int!
+}
+
+"""
+(FROZEN) Defines a single bank account for the corresponding Firm.
+"""
+type BankAccount implements Node {
+  """
+  A unique uuidv4 value for this object.
+  """
+  id: ID!
+  accountHolderName: String!
+  accountType: String!
+  """
+  The category of the bank account. Either 'operating' or 'trust'.
+  """
+  category: String!
+  disbursementSettings: BankAccountDisbursementSettings!
+  firmId: String!
+  """
+  Indicates if the BankAccount is used for chargebacks for the firm.
+  """
+  isChargebackAccount: Boolean!
+  """
+  Indicates if the BankAccount is the default for it's category.
+  """
+  isDefault: Boolean!
+  """
+  Indicates if the BankAccount is used for billing the firm.
+  """
+  isFeeAccount: Boolean!
+  """
+  The last four digits of the bank account. Example: '1234'.
+  """
+  lastFour: String
+  """
+  The nickname of this bank account normally set by the Firm.
+  """
+  nickname: String!
+  routingNumber: String!
+}
+
+type BankAccountDisbursementSettings {
+  allowDisbursements: Boolean!
+  ACH: DisbursementMethodAchSettings!
+  PAYPAL: DisbursementMethodSettings!
+  PUSH_TO_CARD: DisbursementMethodSettings!
+  REQUEST_CHECK: DisbursementMethodSettings!
+  ZELLE: DisbursementMethodSettings!
+}
+
+type BankAccountsListResult {
+  bankAccounts: [BankAccount!]!
+}
+
+type Client implements Node {
+  """
+  A unique uuidv4 value for this object.
+  """
+  id: ID!
+  """
+  (Nullable) The address of this Client.
+  """
+  address: Address
+  aggregatePaymentLinks(after: String, first: Int = 10, orderDirection: String = "ASC"): AggregatePaymentLinkConnection!
+  """
+  The balance associated with this Client object. All values in Cents.
+  """
+  balance: Balance!
+  """
+  The name of the Client. This is the main display name for the Client.
+  """
+  clientName: String
+  """
+  A connection containing all the Contacts associated with this Client.
+  The queries for Clients enable paging through all Clients.
+  """
+  contacts(after: String, first: Int = 10, orderDirection: String = "ASC"): ContactConnection!
+  """
+  A Date object representing when this Client was created.
+  """
+  createdOn: DateTimeISO!
+  """
+  (Nullable) The primary email for contacting this Client.
+  """
+  email: String
+  """
+  (Nullable) An externalId for integration partners to set and query with.
+  """
+  externalId: String
+  """
+  The Firm associated with this Client.
+  """
+  firm: Firm!
+  """
+  (Nullable) The first name of the Client.
+  """
+  firstName: String
+  """
+  (Nullable) The last name of the Client.
+  """
+  lastName: String
+  """
+  A Date object representing the last time this Client was active.
+  """
+  latestActivity: DateTimeISO!
+  """
+  A connection of the matters associated with this client.
+  """
+  matters(after: String, first: Int = 10, orderDirection: String = "ASC"): MatterConnection!
+  """
+  A connection of the payment links associated with this client.
+  """
+  paymentLinks(afterDate: String, after: String, first: Int = 10, orderDirection: String = "ASC"): PaymentLinkConnection!
+  """
+  A connection of the payments associated with this client.
+  """
+  payments(afterDate: String, after: String, first: Int = 10, orderDirection: String = "ASC"): PaymentConnection!
+  """
+  (Nullable) The phone number of the Client as a string.
+  """
+  phone: String
+  """
+  (Nullable) The primary Contact for this Client.
+  """
+  primaryContact: Contact
+  qbCustomerRef: String
+  qbRealmId: String
+  """
+  (Nullable) The original source of the Client. If null, it was created through the Confido Legal UI.
+  """
+  source: String
+  """
+  A connection of all Stored Payment Methods associated with this Client.
+  """
+  storedPaymentMethods(after: String, first: Int = 10, orderDirection: String = "ASC"): StoredPaymentMethodConnection!
+  subscriptions(after: String, first: Int = 10, orderDirection: String = "ASC"): SubscriptionConnection!
+  """
+  A boolean representing whether payments made by this Client (Payment
+  Links, etc.) are surcharged for credit cards by default.
+  """
+  surchargeEnabled: Boolean!
+  """
+  A connection of all Transactions associated with this Client. You can also
+  specify a timestamp for afterDate to gather all Transactions after that
+  timestamp.
+  """
+  transactions(afterDate: String, after: String, first: Int = 10, orderDirection: String = "ASC"): TransactionConnection!
+  """
+  A Date object representing the last time this Client was updated.
+  """
+  updatedOn: DateTimeISO!
+}
+
+type ClientConnection {
+  edges: [ClientEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ClientEdge {
+  cursor: String!
+  node: Client!
+}
+
+type ClientsListResult {
+  clients: [Client!]!
+  total: Int!
+}
+
+"""
+(FROZEN) A Contact represents a single point of contact for a Client. A Client
+can have multiple Contacts but only one primary Contact.
+"""
+type Contact implements Node {
+  """
+  A unique uuidv4 value for this object.
+  """
+  id: ID!
+  """
+  (Nullable) The address associated with this Contact.
+  """
+  address: Address
+  """
+  (Nullable) The email associated with this Contact.
+  """
+  email: String
+  """
+  The first name of this Contact.
+  """
+  firstName: String!
+  """
+  The full name (firstName + ' ' + lastName) of this Contact.
+  """
+  fullName: String!
+  """
+  (Nullable) The last name of this Contact.
+  """
+  lastName: String
+  """
+  (Nullable) The phone number of this Contact.
+  """
+  phone: String
+}
+
+type ContactConnection {
+  edges: [ContactEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ContactEdge {
+  cursor: String!
+  node: Contact!
+}
+
+type CreateFirmResult implements Node {
+  """
+  A unique uuidv4 value for this object.
+  """
+  id: ID!
+  aggregatePaymentLinks(after: String, first: Int = 10, orderDirection: String = "ASC"): AggregatePaymentLinkConnection!
+  bankAccounts: [BankAccount!]!
+  branding: FirmBranding!
+  clients(after: String, first: Int = 10, orderDirection: String = "ASC"): ClientConnection!
+  defaultPaymentMethods: [PaymentMethod!]!
+  disbursementSettings: FirmDisbursementSettings!
+  isAcceptingPayments: Boolean!
+  matters(externalIds: [ID!], clientId: ID, after: String, first: Int = 10, orderDirection: String = "ASC"): MatterConnection!
+  name: String!
+  partner: Partner!
+  paymentLinks(after: String, first: Int = 10, orderDirection: String = "ASC"): PaymentLinkConnection!
+  payments(updatedAfter: String, afterDate: String, after: String, first: Int = 10, orderDirection: String = "ASC"): PaymentConnection!
+  paymentSettings: PaymentSettings!
+  settings: FirmSettings!
+  status: FirmStatus!
+  status2: FirmStatus!
+  storedPaymentMethods(after: String, first: Int = 10, orderDirection: String = "ASC"): StoredPaymentMethodConnection!
+  subscriptions(after: String, first: Int = 10, orderDirection: String = "ASC"): SubscriptionConnection!
+  checkMailingAddress: Address!
+  apiToken: String!
+  onboardingToken: OnboardingToken!
+  """
+  One-time-use link that expires after 20 min.
+  """
+  signUpLink: FirmSignUpLink!
+}
+
+type CreatePaymentTokenResult {
+  paymentToken: String!
+}
+
+type CreateSavePaymentMethodTokenResult {
+  achProcessor: String
+  ccProcessor: String
+  expiresAt: DateTimeISO!
+  savePaymentMethodToken: String!
+}
+
+type DeleteResult {
+  id: String!
+}
+
+type Disbursement {
+  """
+  The unique identifier for the disbursement.
+  """
+  id: String!
+  """
+  The allowed disbursement methods for accepting this disbursement. If null, the firm's default methods will be used.
+  """
+  allowedMethods: [DisbursementMethod!]!
+  """
+  Amount in cents to be disbursed. If the client selects an instant disbursement method, the client will receive this amount minus the instant fee.
+  """
+  amount: Int!
+  """
+  The identities that, when authorized, will be able to access the disbursement.
+  """
+  authorizedIdentities: [DisbursementIdentity!]!
+  """
+  Details from a paper check request, when the payee has requested a check for this disbursement.
+  """
+  checkRequestDetails: DisbursementCheckRequestDetails
+  """
+  The client to associate with the disbursement. Some enhanced security checks will use information from the client to validate the payee.
+  """
+  client: Client
+  createdOn: DateTimeISO!
+  """
+  The stored disbursement method to send funds to, when paying via a saved method.
+  """
+  destinationMethod: StoredDisbursementMethod
+  """
+  The estimated deposit date for the disbursement. Only available for certain disbursement statuses and methods.
+  """
+  depositEta: String
+  """
+  The expected delivery date shown to the client. This is the date from payoutDetails that the client sees.
+  """
+  expectedDeliveryDate: String @deprecated(reason: "Use depositEta instead")
+  """
+  Firm-scoped disbursement number, formatted as a letter plus seven digits (e.g. D0001049). After D9999999 the letter increments and the digits restart at 1000 (E0001000).
+  """
+  displayNumber: String!
+  """
+  Firm-scoped sequential disbursement number.
+  """
+  disbursementNumber: Int! @deprecated(reason: "Use displayNumber instead")
+  """
+  Refer to field usingDefaultEnhancedSecurity to determine if this value overrides the firm's default.
+  """
+  enhancedSecurity: Boolean!
+  """
+  The number of days after the disbursement is approved that it will expire. If null, the firm's default value will be used.
+  """
+  expiryDays: Float!
+  """
+  The date the disbursement will expire. This will be null until the disbursement is approved.
+  """
+  expiresAt: DateTimeISO
+  """
+  Number of failed transaction attempts for this disbursement.
+  """
+  failedTxnCount: Int!
+  """
+  The bank account from which the disbursement will be funded.
+  """
+  fundingAccount: BankAccount!
+  """
+  Firm-internal note for the disbursement. Not shown on receipts or to payees.
+  """
+  internalMemo: String
+  """
+  Maximum number of failed transaction attempts before the disbursement is marked FAILED. Admins can increment to allow more attempts.
+  """
+  maxFailedTxns: Int!
+  matter: Matter
+  """
+  Additional text included on the vendor receipt to help explain what the disbursement was for.
+  """
+  receiptMemo: String
+  vendor: Vendor
+  """
+  Extra data to attach to the disbursement. At acceptance, this data is copied to the transaction. Only flat objects are allowed (e.g., { foo: 'bar' }); nested objects will be rejected.
+  """
+  metadata: JSON
+  """
+  The current status of the disbursement.
+  """
+  status: DisbursementStatus!
+  transactions: [Transaction!]!
+  """
+  The URL for accessing the disbursement. Only available after the disbursement has been approved.
+  """
+  url: String
+  """
+  Indicates if the enhancedSecurity value uses the firm's default. If false, the disbursement has its own value and will be unaffected by changes to the firm's default value.
+  """
+  usingDefaultEnhancedSecurity: Boolean!
+  """
+  Indicates if the expiryDays value uses the firm's default. If false, the disbursement has its own value and will be unaffected by changes to the firm's default value.
+  """
+  usingDefaultExpiryDays: Boolean!
+  """
+  Indicates if the allowedMethods value use the firm's default. If false, the disbursement has its own value and will be unaffected by changes to the firm's default values.
+  """
+  usingDefaultMethods: Boolean!
+}
+
+type DisbursementAmounts {
+  fee: Int!
+  fullAmount: Int!
+  netDeposit: Int!
+}
+
+type DisbursementCheckRequestDetails {
+  address: Address
+  payToTheOrderOf: String
+}
+
+type DisbursementDeleteResult {
+  id: String!
+}
+
+type DisbursementEvent {
+  creator: String
+  data: JSON!
+  """
+  Will be populated for ACCEPTED type events that were failures.
+  """
+  errorDescription: ErrorDescription
+  id: String!
+  occuredAt: DateTimeISO!
+  type: DisbursementEventType!
+}
+
+type DisbursementEventsResult {
+  events: [DisbursementEvent!]!
+}
+
+type DisbursementIdentity {
+  """
+  Used to determine if the identity was pulled from a known source.
+  """
+  source: DisbursementIdentitySource!
+  type: DisbursementIdentityType!
+  value: String!
+}
+
+type DisbursementInitiateTxnToSdmResult {
+  disbursementTxnRequest: DisbursementTxnRequest!
+}
+
+type DisbursementMethodAchSettings {
+  active: Boolean!
+  defaulted: Boolean!
+  enabled: Boolean!
+  verified: Boolean! @deprecated(reason: "Prefer the active field instead")
+  verifyStatus: DisbursementMethodAchVerifyStatus! @deprecated(reason: "This field is no longer used")
+}
+
+type DisbursementMethodSettings {
+  active: Boolean!
+  defaulted: Boolean!
+  enabled: Boolean!
+  verified: Boolean! @deprecated(reason: "Prefer the active field instead")
+}
+
+type DisbursementTxnRequest {
+  id: String!
+  status: TxnRequestStatus!
+}
+
+type DisbursementsCreateBulkResult {
+  disbursements: [DisbursementsCreateBulkResultItem!]!
+}
+
+type DisbursementsCreateBulkResultItem {
+  id: String!
+  amount: Float!
+  """
+  Firm-scoped disbursement number, formatted as a letter plus seven digits (e.g. D0001049).
+  """
+  displayNumber: String!
+  disbursementNumber: Int! @deprecated(reason: "Use displayNumber instead")
+  expiresAt: DateTimeISO
+  publicKey: String
+  status: String!
+  url: String
+}
+
+type DisbursementsListResult {
+  disbursements: [Disbursement!]!
+  total: Int!
+}
+
+"""
+A firm-scoped document (e.g. Confido terms)
+"""
+type Document {
+  id: String!
+  """
+  Acceptance events for this document, most recent first.
+  """
+  acceptEvents: [DocumentAcceptEvent!]!
+  createdOn: DateTimeISO!
+  filename: String!
+  documentUrl: String!
+  status: DocumentStatus!
+  type: String!
+  updatedOn: DateTimeISO!
+}
+
+"""
+Audit record of a document acceptance event
+"""
+type DocumentAcceptEvent {
+  id: ID!
+  acceptorEmail: String!
+  acceptorIpAddress: String!
+  createdOn: DateTimeISO!
+}
+
+type DocumentsListResult {
+  documents: [Document!]!
+  total: Int!
+}
+
+type ErrorDescription {
+  """
+  Default description of the error for the user.
+  """
+  defaultDescription: String!
+  """
+  Default link to help/resolution guide.
+  """
+  defaultLink: String
+  """
+  Firm-specific override for the error description.
+  """
+  firmDescription: String
+  """
+  Firm-specific override for the help link.
+  """
+  firmLink: String
+}
+
+"""
+The Firm object is the root entity for a law Firm. The Firm Settings indicate
+important settings such as whether or not the Firm can enabled surcharging, ach, etc.
+"""
+type Firm implements Node {
+  """
+  A unique uuidv4 value for this object.
+  """
+  id: ID!
+  aggregatePaymentLinks(after: String, first: Int = 10, orderDirection: String = "ASC"): AggregatePaymentLinkConnection!
+  bankAccounts: [BankAccount!]!
+  branding: FirmBranding!
+  clients(after: String, first: Int = 10, orderDirection: String = "ASC"): ClientConnection!
+  defaultPaymentMethods: [PaymentMethod!]!
+  disbursementSettings: FirmDisbursementSettings!
+  isAcceptingPayments: Boolean!
+  matters(externalIds: [ID!], clientId: ID, after: String, first: Int = 10, orderDirection: String = "ASC"): MatterConnection!
+  name: String!
+  partner: Partner!
+  paymentLinks(after: String, first: Int = 10, orderDirection: String = "ASC"): PaymentLinkConnection!
+  payments(updatedAfter: String, afterDate: String, after: String, first: Int = 10, orderDirection: String = "ASC"): PaymentConnection!
+  paymentSettings: PaymentSettings!
+  settings: FirmSettings!
+  status: FirmStatus!
+  status2: FirmStatus!
+  storedPaymentMethods(after: String, first: Int = 10, orderDirection: String = "ASC"): StoredPaymentMethodConnection!
+  subscriptions(after: String, first: Int = 10, orderDirection: String = "ASC"): SubscriptionConnection!
+  checkMailingAddress: Address!
+}
+
+type FirmApiToken {
+  id: String!
+  createdBy: String!
+  createdOn: DateTimeISO!
+  nickname: String
+  revoked: Boolean!
+}
+
+type FirmApiTokenCreateResult {
+  id: String!
+  createdBy: String!
+  createdOn: DateTimeISO!
+  nickname: String
+  revoked: Boolean!
+  token: String!
+}
+
+type FirmApiTokenExchangeCodeResult {
+  id: String!
+  createdBy: String!
+  createdOn: DateTimeISO!
+  nickname: String
+  revoked: Boolean!
+  token: String!
+}
+
+type FirmApiTokenListResult {
+  records: [FirmApiToken!]!
+  total: Int!
+}
+
+type FirmBranding {
+  backgroundColor: String!
+  centerColor: String!
+  footerText: String
+  headerImg: String
+  headerName: String
+  partnerImg: String
+}
+
+type FirmBrandingHeaderImgUploadUrlResult {
+  s3Key: String!
+  uploadUrl: String!
+}
+
+type FirmBrandingUpdateResult {
+  firm: Firm!
+}
+
+type FirmConnection {
+  edges: [FirmEdge!]!
+  pageInfo: PageInfo!
+}
+
+type FirmDisbursementSettings {
+  defaultEnhancedSecurity: Boolean!
+  defaultExpiryDays: Int!
+  firmId: String!
+  maxDisbursementAmount: Int!
+}
+
+type FirmEdge {
+  cursor: String!
+  node: Firm!
+}
+
+type FirmSettings implements Node {
+  id: ID!
+  achEnabled: Boolean!
+  achProcessor: AchProcessor! @deprecated(reason: "Use processingEnv instead")
+  approvedForAch: Boolean!
+  approvedForCard: Boolean!
+  approvedForSurcharge: Boolean!
+  """
+  A url to the Confido Legal UI branding page for customizing the payment page.
+  """
+  brandingPageUrl: String!
+  ccProcessor: CreditCardProcessor! @deprecated(reason: "Use processingEnv instead")
+  checkEnabled: Boolean!
+  checkMailingAddress: Address @deprecated(reason: "Use firm.settings.mailingAddress instead.")
+  combineInvoicesForSameClient: Boolean!
+  creditEnabled: Boolean!
+  debitEnabled: Boolean!
+  mailingAddress: Address
+  processingEnv: ProcessingEnv!
+  promptToCreateSPM: Boolean!
+  requireCvvForSpm: Boolean!
+  surchargeEnabled: Boolean!
+  surchargeRate: Float
+  timezone: String!
+  usePaymentPage2: Boolean!
+  businessAddress: Address!
+}
+
+type FirmSignUpLink {
+  link: String!
+  expiresAt: DateTimeISO!
+}
+
+type FirmsListResult {
+  firms: [Firm!]!
+  total: Int!
+}
+
+"""
+Defines a Matter for a specific Client. Useful for grouping Payments together
+under a specific name.
+"""
+type Matter implements Node {
+  """
+  A unique uuidv4 value for this object.
+  """
+  id: ID!
+  """
+  Balance object holding all the historic payment information for this matter in cents.
+  """
+  balance: Balance!
+  """
+  The primary Client associated with this Matter.
+  """
+  client: Client!
+  """
+  (Nullable) An externalId for integration partners to set and query with.
+  """
+  externalId: ID
+  """
+  (Nullable) A Date object representing the latest activity on this Matter.
+  """
+  latestActivity: DateTimeISO
+  metadata: JSON
+  """
+  A name given to this Matter.
+  """
+  name: String!
+  """
+  A Connection of all the Payment Links associated with this Matter.
+  """
+  paymentLinks(afterDate: String, after: String, first: Int = 10, orderDirection: String = "ASC"): PaymentLinkConnection!
+  """
+  A Connection of all the Payments made on this Matter.
+  """
+  payments(afterDate: String, after: String, first: Int = 10, orderDirection: String = "ASC"): PaymentConnection!
+  """
+  (Nullable) A secondary Client associated with this Matter.
+  """
+  secondaryClient: Client
+  """
+  (Nullable) The original source of the Matter. If null, it was created through the Confido Legal UI.
+  """
+  source: String
+  """
+  The current status of this Matter.
+  """
+  status: String!
+  subscriptions(after: String, first: Int = 10, orderDirection: String = "ASC"): SubscriptionConnection!
+  """
+  A Connection of all the Transactions associated with this Matter. You can also
+  specify a timestamp on afterDate to gather all Transactions after that
+  timestamp.
+  """
+  transactions(afterDate: String, after: String, first: Int = 10, orderDirection: String = "ASC"): TransactionConnection!
+}
+
+type MatterConnection {
+  edges: [MatterEdge!]!
+  pageInfo: PageInfo!
+}
+
+type MatterCreateResult {
+  matter: Matter!
+}
+
+type MatterEdge {
+  cursor: String!
+  node: Matter!
+}
+
+type MatterUpdateResult {
+  matter: Matter!
+}
+
+type MattersListResult {
+  matters: [Matter!]!
+  total: Int!
+}
+
+type Mutation {
+  addAddress(input: AddAddressInput!): Address! @deprecated(reason: "All addresses are associated with an entity and can be added through the parent entity.")
+  removeAddress(id: String!): Address! @deprecated(reason: "All addresses are associated with an entity and can be removed through the parent entity.")
+  updateAddress(input: UpdateAddressInput!): Address! @deprecated(reason: "All addresses are associated with an entity and can be updated through the parent entity.")
+  addAggregatePaymentLink(input: AddAggregatePaymentLinkInput!): AggregatePaymentLink!
+  updateAggregatePaymentLink(input: UpdateAggregatePaymentLinkInput!): AggregatePaymentLink!
+  updateBankAccount(input: UpdateBankAccountInput!): BankAccount!
+  addClient(input: AddClientInput!): Client!
+  updateClient(input: UpdateClientInput!): Client!
+  disbursementInitiateTxnToSdm(input: DisbursementInitiateTxnToSdmInput!): DisbursementInitiateTxnToSdmResult!
+  disbursementsCreateBulk(createInputs: [DisbursementCreateInput!]!): DisbursementsCreateBulkResult!
+  disbursementApprove(id: String!): Disbursement!
+  disbursementCreate(input: DisbursementCreateInput!): Disbursement!
+  disbursementDelete(id: String!): DisbursementDeleteResult!
+  disbursementReturnToDraft(id: String!): Disbursement!
+  disbursementUnapprove(id: String!): Disbursement! @deprecated(reason: "Use disbursementReturnToDraft")
+  disbursementUpdate(input: DisbursementUpdateInput!): Disbursement!
+  disbursementVoid(id: String!): Disbursement!
+  sandboxOnlyDisbursementExpire(input: SandboxOnlyDisbursementExpireInput!): Disbursement!
+  """
+  Record acceptance of a document; creates an audit accept event.
+  """
+  documentAccept(input: DocumentAcceptInput!): Document!
+  createFirmApiToken(firmId: String): String! @deprecated(reason: "Use firmApiTokenCreate")
+  exchangeCodeForFirmApiToken(code: String!): String! @deprecated(reason: "Use firmApiTokenExchangeCode")
+  firmApiTokenCreate(input: FirmApiTokenCreateInput!): FirmApiTokenCreateResult!
+  firmApiTokenDelete(firmApiTokenId: String!): DeleteResult!
+  firmApiTokenExchangeCode(input: FirmApiTokenExchangeCodeInput!): FirmApiTokenExchangeCodeResult!
+  firmApiTokenUpdate(input: FirmApiTokenUpdateInput!): FirmApiToken!
+  firmBrandingUpdate(firmId: String, input: FirmBrandingUpdateInput!): FirmBrandingUpdateResult!
+  createFirm(input: CreateFirmInput): CreateFirmResult!
+  createFirmSignUpLink(firmId: String): FirmSignUpLink!
+  disconnectFromPartner(firmId: String): Firm!
+  """
+  This mutation is for use in development only. It simulates the Firm being successfully onboarded.
+  """
+  sandboxOnlyActivateFirm(firmId: String): Firm!
+  """
+  This mutation is for use in development only. It fills the Firm's onboarding form with mock data.
+  """
+  sandboxOnlyFillOnboardingData(firmId: String): Firm!
+  sandboxOnlyFirmSurchargingUpdate(input: SandboxOnlyFirmSurchargingUpdateInput!): Firm!
+  """
+  This mutation is for use in development only. It simulates the firm application being under review.
+  """
+  sandboxOnlySendFirmToReview(firmId: String): Firm!
+  """
+  This mutation is for use in development only. It fills the Firm's onboarding form with mock data and submits it.
+  """
+  sandboxOnlySubmitOnboardingData(firmId: String): Firm!
+  firmUpdate(input: FirmUpdateInput!): Firm!
+  addMatter(input: AddMatterInput!): Matter! @deprecated(reason: "Use matterCreate instead")
+  matterCreate(input: MatterCreateInput!): MatterCreateResult!
+  matterUpdate(input: MatterUpdateInput!): MatterUpdateResult!
+  updateMatter(input: UpdateMatterInput!): Matter! @deprecated(reason: "Use matterUpdate instead")
+  createOnboardingToken: OnboardingToken!
+  addPaymentLink(input: AddPaymentLinkInput!): PaymentLink!
+  recordManualPaymentOnPaymentLink(input: RecordManualPaymentInput!): Payment!
+  removePaymentLink(input: RemovePaymentLinkInput!): PaymentLink!
+  sendPaymentRequest(input: SendPaymentRequestInput!): Boolean!
+  updatePaymentLink(input: UpdatePaymentLinkInput!): PaymentLink!
+  createPaymentToken(input: CreatePaymentTokenInput): CreatePaymentTokenResult! @deprecated(reason: "Use paymentSessionCreate instead.")
+  paymentSessionCreate(input: PaymentSessionCreateInput!): PaymentSessionCreateResult!
+  paymentSessionComplete(input: PaymentSessionCompleteInput!): Payment!
+  runPayment(input: RunPaymentInput!): Payment! @deprecated(reason: "Use paymentSessionComplete instead.")
+  paymentSettingsUpdate(input: PaymentSettingsUpdateInput!): PaymentSettingsUpdateResult!
+  addContact(input: AddContactInput!): Contact!
+  removeContact(input: RemoveContactInput!): Contact!
+  updateContact(input: UpdateContactInput!): Contact!
+  completeSavePaymentMethod(input: CompleteSavePaymentMethodSessionInput!): StoredPaymentMethod!
+  createSavePaymentMethodToken(input: CreateSavePaymentMethodTokenInput): CreateSavePaymentMethodTokenResult!
+  storedDisbursementMethodLinkCreate(input: StoredDisbursementMethodLinkCreateInput!): StoredDisbursementMethodLinkCreateResult!
+  storedDisbursementMethodLinkDelete(id: String!): StoredDisbursementMethodLinkDeleteResult!
+  storedDisbursementMethodLinkSendEmail(input: StoredDisbursementMethodLinkSendEmailInput!): StoredDisbursementMethodLinkSendEmailResult!
+  storedDisbursementMethodArchive(id: String!): StoredDisbursementMethodArchiveResult!
+  storedDisbursementMethodCreate(input: StoredDisbursementMethodCreateInput!): StoredDisbursementMethodCreateResult!
+  storedDisbursementMethodDelete(id: String!): StoredDisbursementMethodDeleteResult!
+  storedDisbursementMethodTokenCreate: StoredDisbursementMethodTokenCreateResult!
+  storedDisbursementMethodUnarchive(id: String!): StoredDisbursementMethodUnarchiveResult!
+  storedDisbursementMethodUpdate(input: StoredDisbursementMethodUpdateInput!): StoredDisbursementMethodUpdateResult!
+  deactivateStoredPaymentMethod(input: DeactivateStoredPaymentMethodInput!): StoredPaymentMethod!
+  initiateSPMPayment(input: SPMPaymentInput!): Payment!
+  reactivateStoredPaymentMethod(input: ReactivateStoredPaymentMethodInput!): StoredPaymentMethod!
+  """
+  To enable, contact Confido Legal support. Issuing refunds without a linked transaction has additional underwriting requirements.
+  """
+  storedPaymentMethodRefund_v2(input: StoredPaymentMethodRefundInput!): StoredPaymentMethodRefundResult!
+  """
+  To enable, contact Confido Legal support. Issuing refunds without a linked transaction has additional underwriting requirements.
+  """
+  storedPaymentMethodRefund(input: StoredPaymentMethodRefundInput!): Transaction! @deprecated(reason: "Use storedPaymentMethodRefund_v2 instead")
+  updateStoredPaymentMethod(input: UpdateStoredPaymentMethodInput!): StoredPaymentMethod!
+  """
+  This mutation is for use in development only. It creates a statement with random values for the firm on the specified month.
+  """
+  sandboxOnlyCreateMockStatement(input: SandboxOnlyCreateMockStatementInput!): Statement!
+  """
+  This mutation is for use in development only. It updates a statement with new random values to trigger an update statement webhook.
+  """
+  sandboxOnlyUpdateMockStatement(input: SandboxOnlyUpdateMockStatement!): Statement!
+  addSubscription(input: AddSubscriptionInput!): Subscription!
+  cancelSubscription(input: CancelSubscriptionInput!): Subscription!
+  updateSubscription(input: UpdateSubscriptionInput!): Subscription!
+  refundTransaction(input: RefundTransactionInput!): Transaction! @deprecated(reason: "Use transactionRefund instead.")
+  sandboxOnlyMoveTransactionToFundsInTransit(input: SandboxOnlyMoveTransactionInput!): Boolean!
+  sandboxOnlyMoveTransactionToDeposited(input: SandboxOnlyMoveTransactionInput!): Boolean!
+  sandboxOnlyTriggerAchReturn(input: SandboxOnlyTriggerAchReturnInput!): Boolean!
+  sandboxOnlyTriggerChargeback(input: SandboxOnlyTriggerChargebackInput!): Boolean!
+  sandboxOnlyTriggerChargebackReversal(input: SandboxOnlyTriggerChargebackReversalInput!): Boolean!
+  sandboxOnlyTriggerPrearbitrationLost(input: SandboxOnlyTriggerPrearbitrationLostInput!): Boolean!
+  voidTransaction(input: VoidTransactionInput!): Transaction! @deprecated(reason: "Use transactionVoid instead.")
+  voidOrRefundTransaction(input: VoidOrRefundTransactionInput!): Transaction! @deprecated(reason: "Use transactionVoidOrRefund instead.")
+  transactionRefund(input: TransactionRefundInput!): TransactionRefundResult!
+  transactionResendReceipt(input: TransactionResendReceiptInput!): TransactionResendReceiptResult!
+  transactionVoid(input: TransactionVoidInput!): TransactionVoidResult!
+  transactionVoidOrRefund(input: TransactionVoidOrRefundInput!): TransactionVoidOrRefundResult!
+  inviteUser(input: InviteUserInput!): Boolean!
+  resendUserInviteEmail(input: ResendUserInviteEmailInput!): Boolean!
+  vendorArchive(id: String!): VendorArchiveResult!
+  vendorCreate(input: VendorCreateInput!): VendorCreateResult!
+  vendorDelete(id: String!): VendorDeleteResult!
+  vendorUpdate(input: VendorUpdateInput!): VendorUpdateResult!
+  webhookUrlCreate(input: WebhookUrlCreateInput!): WebhookUrl!
+  webhookUrlDelete(id: String!): WebhookUrlDeleteResult!
+  webhookUrlUpdate(input: WebhookUrlUpdateInput!): WebhookUrl!
+  webhookEventResend(input: WebhookEventResendInput!): WebhookEvent!
+}
+
+type OnboardingToken {
+  expiresAt: DateTimeISO!
+  token: String!
+}
+
+type PageInfo {
+  endCursor: ID
+  hasNextPage: Boolean!
+}
+
+type Partner {
+  id: String!
+  appId: String!
+  connectLogoUrl: String
+  title: String!
+}
+
+type PayRequestResult {
+  """
+  The external ID associated with this pay request
+  """
+  externalId: String!
+  """
+  All transactions associated with this pay request
+  """
+  transactions: [Transaction!]!
+}
+
+type Payment implements Node {
+  id: ID!
+  amount: Int!
+  cardBrand: String
+  client: Client
+  createdOn: DateTimeISO!
+  firm: Firm!
+  latestActivity: DateTimeISO!
+  matter: Matter
+  paymentLink: PaymentLink
+  status: PaymentStatus!
+  storedPaymentMethod: StoredPaymentMethod
+  transactions: [Transaction!]!
+}
+
+type PaymentConnection {
+  edges: [PaymentEdge!]!
+  pageInfo: PageInfo!
+}
+
+type PaymentEdge {
+  cursor: String!
+  node: Payment!
+}
+
+"""
+Defines a PaymentLink for a specific Client. This is the most common payment
+vehicle used.
+"""
+type PaymentLink implements Node {
+  """
+  A unique uuidv4 value for this object.
+  """
+  id: ID!
+  aggregatePaymentLinks(after: String, first: Int = 10, orderDirection: String = "ASC"): AggregatePaymentLinkConnection!
+  """
+  A list of the amounts currently associated with this PaymentLink. These
+  represent the amount that will be charged and the bank account the money will
+  go into.
+  """
+  amounts: [Amount!]!
+  """
+  The balance associated with this PaymentLink object. All values in Cents.
+  """
+  balance: Balance!
+  """
+  The Client charges to this PaymentLink will be recorded under.
+  """
+  client: Client!
+  clio: PaymentLinkClio
+  """
+  A Date object representing when this PaymentLink was created.
+  """
+  createdOn: DateTimeISO!
+  """
+  (Nullable) An externalId for integration partners to set and query with.
+  """
+  externalId: ID
+  """
+  The Firm this PaymentLink is associated with. This Firm must also have the
+  bank accounts under the amounts associated with it.
+  """
+  firm: Firm!
+  """
+  (Optional) A matter to also associate payments to this PaymentLink with.
+  """
+  matter: Matter
+  """
+  (Optional) A memo associated with the PaymentLink.
+  """
+  memo: String
+  """
+  (Optional) Override for whether this PaymentLink allows partial payments. If
+  'null', the Firm-level paylink partial payment setting is used.
+  """
+  partialPaymentAllowed: Boolean
+  """
+  The effective partial payment setting for this PaymentLink and whether the
+  Firm-level paylink partial payment setting was used.
+  """
+  partialPayment: PaymentLinkPartialPayment!
+  """
+  A list of the amounts currently associated with this PaymentLink. These
+  represent the amount that will be charged and the bank account the money will
+  go into.
+  """
+  paymentMethodsAllowed: [PaymentMethod!]!
+  """
+  A connection of all Payments made on this PaymentLink.
+  """
+  payments(after: String, first: Int = 10, orderDirection: String = "ASC"): PaymentConnection!
+  qbDocNumber: String
+  qbEnabled: Boolean
+  qbInvoiceRef: String
+  qbRealmId: String
+  """
+  If 'false', Confido Legal will not send any receipts out for this Payment Link.
+  This defaults to 'true' so by default, Confido Legal will send out all receipts
+  for the Payment Link.
+  """
+  sendReceipts: Boolean!
+  """
+  The current status of this PaymentLink. Options: 'unpaid' | 'partially_paid' |
+  'paid' | 'sealed'
+  """
+  status: String!
+  """
+  Indicates whether or not surcharge will be applied to credit cards for payments
+  on this link.
+  """
+  surchargeEnabled: Boolean!
+  """
+  A connection of all Transactions made on this PaymentLink.
+  """
+  transactions(createdAfter: String, after: String, first: Int = 10, orderDirection: String = "ASC"): TransactionConnection!
+  """
+  The external url to the payment page for this PaymentLink.
+  """
+  url: String!
+}
+
+type PaymentLinkClio {
+  invoices: [PaymentLinkClioInvoice!]!
+}
+
+type PaymentLinkClioInvoice {
+  externalDisplayId: String
+  externalId: String
+  id: ID!
+}
+
+type PaymentLinkConnection {
+  edges: [PaymentLinkEdge!]!
+  pageInfo: PageInfo!
+}
+
+type PaymentLinkEdge {
+  cursor: String!
+  node: PaymentLink!
+}
+
+type PaymentLinkPartialPayment {
+  allowed: Boolean!
+  usingFirmDefault: Boolean!
+}
+
+type PaymentSessionCreateResult {
+  achProcessor: String
+  ccProcessor: String
+  expiresAt: DateTimeISO!
+  paymentSessionToken: String!
+}
+
+type PaymentSettings {
+  id: String!
+  achAllowed: Boolean!
+  achDefaulted: Boolean!
+  achEnabled: Boolean!
+  checkAllowed: Boolean!
+  checkDefaulted: Boolean!
+  checkEnabled: Boolean!
+  createdOn: DateTimeISO!
+  creditAllowed: Boolean!
+  creditDefaulted: Boolean!
+  creditEnabled: Boolean!
+  debitAllowed: Boolean!
+  debitDefaulted: Boolean!
+  debitEnabled: Boolean!
+  manualAllowed: Boolean!
+  paylinkPartialPaymentAllowed: Boolean!
+  paymentsActivated: Boolean!
+  requireEmailForSpm: Boolean!
+  saveMethodDefaulted: Boolean!
+  saveMethodCheckboxVisible: Boolean!
+  surchargeAllowed: Boolean!
+  surchargeDefaulted: Boolean!
+  surchargeEnabled: Boolean!
+  surchargeRate: Float
+  updatedOn: DateTimeISO!
+}
+
+type PaymentSettingsUpdateResult {
+  paymentSettings: PaymentSettings!
+}
+
+type PaymentsReport {
+  payments: TransactionMetrics!
+  refunds: TransactionMetrics!
+}
+
+type PaymentsReportByMethod {
+  ach: ACHPaymentsReport!
+  cards: PaymentsReport!
+  credit: PaymentsReport!
+  debit: PaymentsReport!
+  totals: PaymentsReport!
+}
+
+type PayoutsReportByMethod {
+  ach: TransactionMetrics!
+  instant: TransactionMetrics!
+  paypal: TransactionMetrics!
+  p2c: TransactionMetrics!
+  totals: TransactionMetrics!
+  zelle: TransactionMetrics!
+}
+
+type PeriodReport {
+  date: String
+  payments: PaymentsReportByMethod!
+  payouts: PayoutsReportByMethod!
+  year: Int
+  yearMonth: Int
+}
+
+type Query {
+  aggregatePaymentLink(id: String!): AggregatePaymentLink!
+  bankAccountsList(search: String, firmId: String): BankAccountsListResult!
+  bankAccountGet(id: String!): BankAccount!
+  client(externalId: String, id: String): Client!
+  clientsList(ids: [String!], clientName: String, createdOn: DateFilterArg, email: String, externalIds: [String!], firstName: String, lastName: String, latestActivity: DateFilterArg, limit: Int, offset: Int, orderBy: [String!], orderDir: [OrderDir!], phone: String): ClientsListResult!
+  clientFromQuickBooksReference(qbRealmId: String!, qbCustomerRef: String!): Client!
+  disbursementGet(id: String!): Disbursement!
+  disbursementEventsGet(id: String!): DisbursementEventsResult!
+  disbursementsList(amount: IntFilterArg, authorizedIdentities: [String!], clientIds: [String!], createdOn: DateFilterArg, destinationMethodIds: [String!], disbursementNumber: String, limit: Int, fundingAccountIds: [String!], matterIds: [String!], metadata: JSON, offset: Int, orderBy: [String!], orderDir: [OrderDir!], statuses: [DisbursementStatus!], vendorIds: [String!]): DisbursementsListResult!
+  """
+  List firm documents.
+  """
+  documentsList(firmId: ID): DocumentsListResult!
+  firmApiTokenList(firmId: String): FirmApiTokenListResult!
+  firmBrandingHeaderImgUploadUrl(firmId: String, filename: String!, contentType: String!): FirmBrandingHeaderImgUploadUrlResult!
+  firmDisbursementSettingsGet(firmId: String): FirmDisbursementSettings!
+  firm(id: ID): Firm!
+  """
+  Used to grab a list of the available firms.
+  """
+  firms(after: String, first: Int = 10, orderDirection: String = "ASC"): FirmConnection! @deprecated(reason: "Use firmsList instead.")
+  """
+  Request a list of firms. Only valid for partner tokens. The maximum limit is 1,000.
+  """
+  firmsList(ids: [String!], limit: Int, name: String, skipTotal: Boolean): FirmsListResult!
+  matter(externalId: String, id: String): Matter!
+  mattersList(ids: [String!], clientIds: [String!], createdOn: DateFilterArg, externalIds: [String!], latestActivity: DateFilterArg, limit: Int, offset: Int, orderBy: [String!], orderDir: [OrderDir!], name: String): MattersListResult!
+  partner(partnerId: String, appId: String): Partner!
+  payRequestList(input: PayRequestInput!): [PayRequestResult!]!
+  paymentLink(externalId: String, id: String): PaymentLink!
+  payment(id: String!): Payment!
+  refundRequestGet(externalId: String, id: String): RefundRequestGetResult!
+  transactionReport(bankAccountId: String, customerId: String, end: String!, period: ReportingPeriod!, start: String!): TransactionReport!
+  node: Node!
+  nodes: [Node!]!
+  me: Scope!
+  storedDisbursementMethodLinksList(clientIds: [String!], limit: Int, offset: Int, statuses: [SdmLinkStatus!], vendorIds: [String!]): StoredDisbursementMethodLinksListResult!
+  storedDisbursementMethodsList(clientId: String, includeArchived: Boolean, limit: Int, offset: Int, vendorId: String): StoredDisbursementMethodsListResult!
+  storedPaymentMethod(id: ID!): StoredPaymentMethod!
+  storedPaymentMethodUrl(clientId: String!): StoredPaymentMethodUrl!
+  statements(orderDir: OrderDir, endMonth: String, startMonth: String, offset: Int, limit: Int! = 10): StatementListResult!
+  subscription(id: String!): Subscription!
+  transaction(id: String!): Transaction!
+  transactionsList(aggregatePaymentLinkIds: [String!], amountProcessed: IntFilterArg, amountRefunded: IntFilterArg, bankAccountIds: [String!], cardBrands: [String!], clientIds: [String!], createdOn: DateFilterArg, depositIds: [String!], excludeStatuses: [TransactionStatus2!], excludeTypes: [TransactionType!], firmIds: [String!], partnerIds: [String!], lastFour: String, limit: Int, matterIds: [String!], offset: Int, orderBy: [String!], orderDir: [OrderDir!], payerEmail: String, payerName: String, paymentMethods: [TransactionPaymentMethod!], paymentIds: [String!], paymentLinkIds: [String!], statuses: [TransactionStatus2!], storedPaymentMethodIds: [String!], surchargeAmount: IntFilterArg, txnGroupId: String, types: [TransactionType!]): TransactionsListResult!
+  transactionVoidDetails(transactionId: String!): TransactionVoidDetailsResult!
+  vendorGet(id: String!): VendorGetResult!
+  vendorsList(ids: [String!], includeArchived: Boolean, limit: Int, name: String, offset: Int, orderBy: [String!], orderDir: [OrderDir!], search: String): VendorsListResult!
+  voidRequestGet(externalId: String, id: String): VoidRequestGetResult!
+  webhookUrlsList: WebhookUrlsListResult!
+  webhookEventsList(webhookUrlId: String!): WebhookEventsListResult!
+}
+
+type RefundRequest {
+  id: String!
+  createdOn: DateTimeISO!
+  errorMessage: String
+  externalId: String
+  status: RequestStatus!
+}
+
+type RefundRequestGetResult {
+  """
+  All original transactions that were refunded by the mutation. Will be null if status is still pending.
+  """
+  originalTransactions: [Transaction!]
+  """
+  A reference back to this specific refund request.
+  """
+  refundRequest: RefundRequest!
+  """
+  The new refund type transactions created by the mutation. Will be null if status is still pending.
+  """
+  refundTransactions: [Transaction!]
+}
+
+type SavePaymentMethodSession {
+  errorMessage: String
+  status: String!
+  token: String!
+}
+
+type Schedule {
+  ends: SubscriptionEnds!
+  frequency: SubscriptionFrequency!
+}
+
+type Scope {
+  firm: ScopeFirm
+  partner: ScopePartner
+  paymentSession: ScopePaymentSession
+  role: String!
+}
+
+type ScopeFirm {
+  id: String!
+  name: String!
+}
+
+type ScopePartner {
+  id: String!
+  appId: String!
+}
+
+type ScopePaymentSession {
+  id: String!
+}
+
+type SpmDeclineInfo {
+  consecutiveDeclines: Int!
+  declineMessage: String!
+}
+
+"""
+Standing links are public links that can take payment at any time.
+"""
+type StandingLink implements Node {
+  """
+  A unique uuidv4 value for this object.
+  """
+  id: ID!
+  """
+  The customizable label above the notes field on the payment page
+  """
+  payerNotesFieldName: String!
+  """
+  The name for the standing link
+  """
+  name: String!
+  """
+  The public link used for collecting payment
+  """
+  url: String!
+}
+
+"""
+The firm's statement for a specific month.
+"""
+type Statement {
+  """
+  Additional credits made to the firm this month.
+  """
+  additionalCredits: [StatementAdditionalCredit!]!
+  """
+  Additional fees charged to the firm this month.
+  """
+  additionalFees: [StatementAdditionalFee!]!
+  bankAccounts: [StatementBankAccount!]!
+  debits: [StatementDebit!]!
+  id: String!
+  """
+  The month for this statement in the format YYYY-MM
+  """
+  month: String!
+  pdfUrl: String!
+}
+
+type StatementAdditionalCredit {
+  amount: Int!
+  description: String!
+  type: String!
+}
+
+type StatementAdditionalFee {
+  amount: Float!
+  description: String!
+  type: String!
+}
+
+type StatementBankAccount {
+  bankAccountCategory: String!
+  bankAccountDeleted: Boolean!
+  bankAccountMask: String!
+  bankAccountNickname: String!
+  achPaymentVolume: Float!
+  cardPaymentVolume: Float!
+  totalPaymentVolume: Float!
+  achTransactions: Float!
+  cardTransactions: Float!
+  totalTransactions: Float!
+  achFees: Float!
+  cardFees: Float!
+  surchargeFeesCollected: Float!
+  totalFees: Float!
+}
+
+type StatementDebit {
+  amount: Float!
+  fromBankAccountCategory: String!
+  fromBankAccountMask: String!
+  fromBankAccountNickname: String!
+  statementDescriptor: String!
+}
+
+type StatementListResult {
+  records: [Statement!]!
+  total: Int!
+}
+
+type StoredDisbursementMethod {
+  id: String!
+  archived: Boolean!
+  client: Client
+  canDelete: Boolean!
+  cardBrand: String
+  createdOn: DateTimeISO!
+  details: StoredDisbursementMethodDetails
+  displayName: String!
+  firm: Firm!
+  latestActivity: DateTimeISO!
+  method: DisbursementMethod!
+  nickname: String
+  timesUsed: Float!
+  updatedOn: DateTimeISO!
+  vendor: Vendor
+}
+
+type StoredDisbursementMethodArchiveResult {
+  storedDisbursementMethod: StoredDisbursementMethod!
+}
+
+type StoredDisbursementMethodCreateResult {
+  storedDisbursementMethod: StoredDisbursementMethod!
+}
+
+type StoredDisbursementMethodDeleteResult {
+  storedDisbursementMethod: StoredDisbursementMethod!
+}
+
+type StoredDisbursementMethodDetails {
+  accountHolderName: String
+  accountType: String
+  bankName: String
+  brand: String
+  lastFour: String
+  routingNumber: String
+  zip: String
+}
+
+type StoredDisbursementMethodLink {
+  id: String!
+  client: Client
+  createdOn: DateTimeISO!
+  emailIds: [String!]
+  emailMessage: String
+  expiresAt: DateTimeISO!
+  firm: Firm!
+  latestActivity: DateTimeISO!
+  publicKey: String!
+  status: SdmLinkStatus!
+  toEmails: [String!]
+  updatedOn: DateTimeISO!
+  url: String!
+  vendor: Vendor
+}
+
+type StoredDisbursementMethodLinkCreateResult {
+  storedDisbursementMethodLink: StoredDisbursementMethodLink!
+}
+
+type StoredDisbursementMethodLinkDeleteResult {
+  storedDisbursementMethodLink: StoredDisbursementMethodLink!
+}
+
+type StoredDisbursementMethodLinkSendEmailResult {
+  storedDisbursementMethodLink: StoredDisbursementMethodLink!
+}
+
+type StoredDisbursementMethodLinksListResult {
+  storedDisbursementMethodLinks: [StoredDisbursementMethodLink!]!
+  total: Int!
+}
+
+type StoredDisbursementMethodTokenCreateResult {
+  expiresAt: DateTimeISO!
+  token: String!
+}
+
+type StoredDisbursementMethodUnarchiveResult {
+  storedDisbursementMethod: StoredDisbursementMethod!
+}
+
+type StoredDisbursementMethodUpdateResult {
+  storedDisbursementMethod: StoredDisbursementMethod!
+}
+
+type StoredDisbursementMethodsListResult {
+  storedDisbursementMethods: [StoredDisbursementMethod!]!
+  total: Int!
+}
+
+"""
+A Stored Payment Method is a payment method (credit card, ACH, etc.) that has been saved to be charged
+later in the future. A Stored Payment Method is created by first creating a URL for a specific Client.
+The URL is then given to the Client for the payment method (credit card, ACH, etc.) info to be input.
+After the Client saves their payment info at the URL, it can be found by querying the Client again with
+the storedPaymentMethods included in the request.
+"""
+type StoredPaymentMethod implements Node {
+  """
+  A unique uuidv4 value for this object.
+  """
+  id: ID!
+  """
+  The balance associated with this Stored Payment Method object. All values in Cents.
+  """
+  balance: Balance!
+  canReactivate: Boolean!
+  """
+  The brand of the stored payment method card if the paymentMethod is credit or debit.
+  Example: 'mastercard' or 'visa'.
+  """
+  cardBrand: String
+  """
+  The Client associated with this Stored Payment Method. If null, Firm will be defined.
+  """
+  client: Client
+  declineInfo: SpmDeclineInfo
+  """
+  The Firm associated with this Stored Payment Method. If null, Client will be defined.
+  """
+  firm: Firm
+  """
+  The last four digits (this will sometimes return three) of the card number or ach bank account. Example: '1234'.
+  """
+  lastFour: String
+  """
+  The name the user input on the Stored Payment Method creation page.
+  """
+  payerName: String
+  """
+  A nickname for this specific Stored Payment Method. This should be set after the user has created the
+  Stored Payment Method and is used to help organize Stored Payment Methods if a single client has
+  multiple.
+  """
+  nickname: String
+  """
+  The payment method of this Stored Payment Method. Example: 'ACH' or 'CREDIT'.
+  """
+  paymentMethod: String!
+  status: String!
+  sessions: [SavePaymentMethodSession!]!
+  surcharging: StoredPaymentMethodSurcharging!
+  type: String!
+}
+
+type StoredPaymentMethodConnection {
+  edges: [StoredPaymentMethodEdge!]!
+  pageInfo: PageInfo!
+}
+
+type StoredPaymentMethodEdge {
+  cursor: String!
+  node: StoredPaymentMethod!
+}
+
+type StoredPaymentMethodRefundResult {
+  """
+  A reference back to this specific refund request.
+  """
+  refundRequest: RefundRequest!
+  """
+  The new refund type transactions created by the mutation. Will be null if status is still pending.
+  """
+  refundTransactions: [Transaction!]
+}
+
+type StoredPaymentMethodSurcharging {
+  rate: Float
+  willBeApplied: Boolean!
+}
+
+type StoredPaymentMethodUrl {
+  url: String!
+}
+
+type Subscription {
+  """
+  A list of one amount object indicating the amount that will be charged and
+  the bank account to which the amount will be deposited on each billing cycle.
+  """
+  amounts: [Amount!]!
+  """
+  A Balance object with the current state of the subscription.
+  """
+  balance: Balance!
+  """
+  The Client associated with the subscription.
+  """
+  client: Client!
+  """
+  A unique uuidv4 value for this object.
+  """
+  id: String!
+  """
+  (Nullable) The Matter associated with the subscription.
+  """
+  matter: Matter
+  """
+  The payment methods to allow when activating or updating the subscription.
+  """
+  paymentMethods: [PaymentMethod!]
+  """
+  An object defining the schedule of the subscription. When the subscription charges the
+  client and when the subscription is considered fulfilled.
+  """
+  schedule: Schedule!
+  """
+  The current status of the subscription.
+  
+  Possible values: 'active', 'canceled', 'fulfilled', 'payment_failed',
+  'needs_attention', and 'pending'
+  """
+  status: String!
+  """
+  (Nullable) The stored payment method associated with the subscription.
+  
+  If this is null, the url should be used to activate the subscription by collecting
+  the client of the firm's payment method information.
+  """
+  storedPaymentMethod: StoredPaymentMethod
+  """
+  A boolean value indicating whether surcharging will be added to the subscription
+  payments.
+  """
+  surchargeEnabled: Boolean!
+  """
+  A list of upcoming payment dates. This will be a list of string values of the
+  form 'YYYY-MM-DD'.
+  """
+  upcomingPayments: [UpcomingPayment!]!
+  """
+  The url to use to activate or change the stored payment method of the subscription
+  by collecting the firm's client's payment method information.
+  """
+  url: String!
+}
+
+type SubscriptionConnection {
+  edges: [SubscriptionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type SubscriptionEdge {
+  cursor: String!
+  node: Subscription!
+}
+
+type SubscriptionEnds {
+  amountPaid: Int
+  never: Boolean
+  on: String
+  payments: Int
+}
+
+type SubscriptionFrequency {
+  biweekly: [String!]
+  monthly: [Int!]
+  weekly: [String!]
+  yearly: [String!]
+}
+
+"""
+Defines a single Transaction. This is the payment that was actually sent to
+the bank, credit card processor, etc.
+"""
+type Transaction implements Node {
+  """
+  A unique uuidv4 value for this object.
+  """
+  id: ID!
+  """
+  (Nullable) If the Transaction was an ACH payment, this status represents the
+  current state of the Transaction, 'A' => Pending | 'B' => Originated | 'R' =>
+  Returned | 'S' => Settled | 'V' => Voided.
+  """
+  achStatus: String @deprecated(reason: "Use status field instead")
+  achReturnCode: String
+  achReturnReason: String
+  """
+  Whether this ACH payment is still inside the bank return window.
+  """
+  achReturnWindowActive: Boolean!
+  aggregatePaymentLink: AggregatePaymentLink
+  """
+  The amount in cents that was processed for the Transaction.
+  """
+  amountProcessed: Int!
+  """
+  The amount in cents that was refunded for the Transaction.
+  """
+  amountRefunded: Int!
+  """
+  The Bank Account that the Transaction was deposited into.
+  """
+  bankAccount: BankAccount!
+  canRefund: Boolean!
+  canVoid: Boolean!
+  cardBrand: String
+  client: Client
+  createdOn: DateTimeISO!
+  depositId: String
+  disbursement: Disbursement
+  disbursementAmounts: DisbursementAmounts
+  errorMessage: String
+  """
+  A list of events related to the transaction. Only available when querying an individual transaction.
+  """
+  events: [TransactionEvent!]
+  firm: Firm!
+  lastFour: String
+  legacySurchargeAmount: Int!
+  legacySurchargeAmountRefunded: Int!
+  matter: Matter
+  """
+  The id of the original transaction that was refunded, voided, or returned.
+  """
+  originalTransactionId: String
+  """
+  Stable id shared by transactions that belong to the same payment, refund, void, return, reversal, or chargeback group.
+  """
+  txnGroupId: String
+  payerEmail: String
+  payerEmails: [String!]
+  payerName: String
+  payerNotes: String
+  paymentMethod: TransactionPaymentMethod!
+  payment: Payment
+  paymentLink: PaymentLink
+  """
+  External ID for tracking this payment in partner systems
+  """
+  payRequest: TransactionPayRequest
+  """
+  The environment this transaction was processed in. Possible values: 'mock', 'sandbox', 'production'.
+  """
+  processingEnv: String!
+  """
+  (Nullable) If the Transaction was an ACH payment, this will be set to a
+  timestamp for when the payment was settled.
+  """
+  settledOn: DateTimeISO
+  """
+  True when a refund of this transaction will be debited from the firm's operating account and the firm should display a trust refund warning.
+  """
+  showTrustRefundWarning: Boolean!
+  standingLink: StandingLink
+  """
+  The current status of the Transaction. Possible values: 'error' |
+  'originated' | 'pending' | 'refunded' | 'returned' | 'reversed' |
+  'settled' | 'successful' | 'voided'.
+  """
+  status: String! @deprecated(reason: "Deprecated in favor of `transaction.status_v2`.")
+  """
+  The current status of the Transaction.
+  """
+  status_v2: TransactionStatus2!
+  storedPaymentMethod: StoredPaymentMethod
+  subscription: Subscription
+  """
+  The amount in cents that was paid for surcharging. This is not included in the
+  amount so the total amount processed would be amount + surchargeAmount.
+  """
+  surchargeAmount: Int!
+  """
+  The amount in cents that was refunded for surcharging. This is not included in
+  the amountRefunded so the total amount refunded would be amountRefunded +
+  surchargeAmountRefunded.
+  """
+  surchargeAmountRefunded: Int!
+  surchargePercentage: Float
+  """
+  The type of the transaction. Possible values: 'achPayment' | 'ccPayment' |
+  'chargeback' | 'chargeback_reversal' | 'error' | 'manualPayment' | 'refund' |
+  'reverse' | 'transfer' | 'void'.
+  """
+  type: String!
+  """
+  A Date object representing the last time this Transaction was updated.
+  """
+  updatedOn: DateTimeISO!
+  voidRequests: [VoidRequest!]!
+  refundRequests: [RefundRequest!]!
+}
+
+type TransactionConnection {
+  edges: [TransactionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type TransactionEdge {
+  cursor: String!
+  node: Transaction!
+}
+
+type TransactionEvent {
+  """
+  Event uuid
+  """
+  id: String!
+  """
+  When the event occurred
+  """
+  date: DateTimeISO!
+  """
+  The type of event
+  """
+  type: String!
+  """
+  Uuid for the primary entity
+  """
+  typeId: String
+  """
+  Display name of the user or system that triggered this event
+  """
+  creator: String
+  """
+  Data associated with transaction events
+  """
+  data: TransactionEventData
+}
+
+type TransactionEventData {
+  """
+  Data just after event occurred
+  """
+  newProps: TransactionEventDataProps
+  """
+  Data before event occurred
+  """
+  oldProps: TransactionEventDataProps
+  """
+  The transaction type
+  """
+  transactionType: String!
+}
+
+type TransactionEventDataProps {
+  """
+  The transaction status
+  """
+  status2: String
+  """
+  When the transaction was settled
+  """
+  settledOn: DateTimeISO
+}
+
+type TransactionMetrics {
+  volume: Int!
+  count: Int!
+}
+
+type TransactionPayRequest {
+  externalId: String
+}
+
+type TransactionRefundResult {
+  """
+  All original transactions that were refunded by the mutation. Will be null if status is still pending.
+  """
+  originalTransactions: [Transaction!]
+  """
+  A reference back to this specific refund request.
+  """
+  refundRequest: RefundRequest!
+  """
+  The new refund type transactions created by the mutation. Will be null if status is still pending.
+  """
+  refundTransactions: [Transaction!]
+}
+
+type TransactionReport {
+  data: [PeriodReport!]!
+}
+
+type TransactionResendReceiptResult {
+  """
+  The type of receipt sent: payment or refund.
+  """
+  receiptType: String!
+  """
+  Whether the receipt email was dispatched.
+  """
+  sent: Boolean!
+  """
+  The resolved recipient email address.
+  """
+  to: String!
+}
+
+type TransactionVoidDetailsResult {
+  """
+  Whether or not the transaction can be voided
+  """
+  canVoid: Boolean!
+  """
+  All transactions that will be voided as a result of the request
+  """
+  transactions: [Transaction!]!
+  """
+  All void requests associated with the transaction
+  """
+  voidRequests: [VoidRequest!]!
+}
+
+type TransactionVoidOrRefundResult {
+  """
+  The original transactions that were voided or refunded. Null if request is still pending or failed.
+  """
+  originalTransactions: [Transaction!]
+  refundRequest: RefundRequest
+  status: String!
+  type: String!
+  """
+  The new void or refund transactions created. Null if request is still pending or failed.
+  """
+  voidOrRefundTransactions: [Transaction!]
+  voidRequest: VoidRequest
+}
+
+type TransactionVoidResult {
+  """
+  The original transactions that were voided. Null if request is still pending or failed.
+  """
+  originalTransactions: [Transaction!]
+  """
+  A reference back to this specific void request.
+  """
+  voidRequest: VoidRequest!
+  """
+  The new void transactions created. Null if request is still pending or failed.
+  """
+  voidTransactions: [Transaction!]
+}
+
+type TransactionsListResult {
+  transactions: [Transaction!]!
+  total: Int!
+  totalAmounts: TransactionsListResultTotalAmounts!
+}
+
+type TransactionsListResultTotalAmounts {
+  totalPayments: BigInt!
+  totalPaymentsRefunded: BigInt!
+  totalPayouts: BigInt!
+  totalSurcharge: BigInt!
+  totalSurchargeRefunded: BigInt!
+}
+
+type UpcomingPayment {
+  amount: Int!
+  billDate: String!
+}
+
+type Vendor {
+  addresses: [Address!]
+  archived: Boolean!
+  businessType: String!
+  canDelete: Boolean!
+  contacts: [VendorContact!]
+  createdOn: DateTimeISO!
+  disbursementMethods: [StoredDisbursementMethod!]!
+  id: String!
+  latestActivity: DateTimeISO!
+  name: String!
+}
+
+type VendorArchiveResult {
+  vendor: Vendor!
+}
+
+type VendorContact {
+  email: String
+  isDefault: Boolean
+  name: String
+  phone: String
+}
+
+type VendorCreateResult {
+  vendor: Vendor!
+}
+
+type VendorDeleteResult {
+  vendor: Vendor!
+}
+
+type VendorGetResult {
+  vendor: Vendor!
+}
+
+type VendorUpdateResult {
+  vendor: Vendor!
+}
+
+type VendorsListResult {
+  vendors: [Vendor!]!
+  total: Int!
+}
+
+type VoidRequest {
+  id: String!
+  createdOn: DateTimeISO!
+  errorMessage: String
+  externalId: String
+  status: RequestStatus!
+}
+
+type VoidRequestGetResult {
+  """
+  The original transactions that were voided. Null if request is still pending or failed.
+  """
+  originalTransactions: [Transaction!]
+  """
+  A reference back to this specific void request.
+  """
+  voidRequest: VoidRequest!
+  """
+  The new void transactions created. Null if request is still pending or failed.
+  """
+  voidTransactions: [Transaction!]
+}
+
+type WebhookEvent {
+  id: String!
+  createdOn: DateTimeISO!
+  errorMessage: String
+  nextAttemptAt: DateTimeISO
+  payload: JSON!
+  sendAttempts: JSON!
+  status: String!
+  url: String!
+  webhookUrl: WebhookUrl!
+}
+
+type WebhookEventsListResult {
+  total: Float!
+  webhookEvents: [WebhookEvent!]!
+}
+
+type WebhookUrl {
+  id: String!
+  advancedSettings: WebhookUrlAdvancedSettings!
+  createdOn: DateTimeISO!
+  disabled: Boolean!
+  enabledWebhooks: [String!]!
+  secret: String!
+  url: String!
+}
+
+type WebhookUrlAdvancedSettings {
+  removeUserAgentHeader: Boolean!
+}
+
+type WebhookUrlDeleteResult {
+  id: String!
+}
+
+type WebhookUrlsListResult {
+  total: Float!
+  webhookUrls: [WebhookUrl!]!
+}
+
+"""
+The `BigInt` scalar type represents non-fractional signed whole numeric values.
+"""
+scalar BigInt
+
+"""
+A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.This scalar is serialized to a string in ISO 8601 format and parsed from a string in ISO 8601 format.
+"""
+scalar DateTimeISO
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON

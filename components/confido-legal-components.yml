@@ -1,0 +1,110 @@
+generated: '2026-09-05'
+method: searched
+source: https://docs.confidolegal.com/hosted-fields-js/overview + https://docs.confidolegal.com/onboarding-js/overview + https://docs.confidolegal.com/docs/receive-money/payment-links
+provider: Confido Legal
+providerId: confido-legal
+description: >-
+  Confido Legal's client-side surface is substantial and is where most of its PCI value
+  sits. Three families: iframe-injecting field libraries, an embeddable onboarding form,
+  and fully Confido-hosted payment pages that need no JavaScript at all.
+families:
+- name: Hosted Fields
+  kind: iframe-injected field library
+  loader: https://js.gravity-legal.com/hosted-fields.js
+  sandbox_loader: https://js.sandbox.gravity-legal.com/hosted-fields.js
+  global: window.confidoHostedFields
+  singleton: true
+  docs: https://docs.confidolegal.com/hosted-fields/overview
+  reference: https://docs.confidolegal.com/hosted-fields-js/overview
+  purpose: >-
+    Full control of payment UX while staying out of PCI scope. The partner adds divs with
+    unique ids; the SDK injects Confido-owned iframes into them to collect card and ACH
+    data. Sensitive values go straight to Confido's servers, never through the partner's.
+  modes:
+  - name: Payment Session
+    server_start: paymentSessionCreate
+    server_finish: paymentSessionComplete
+    token: pay_public_*
+  - name: Save Payment Method Session
+    server_start: createSavePaymentMethodToken
+    server_finish: completeSavePaymentMethod
+  methods:
+  - initialize
+  - submitFields
+  - getState
+  - changeFormType
+  events:
+  - name: confido_hosted_fields_script_loaded
+    mechanism: window.postMessage
+    purpose: Signals the script is ready for initialization.
+  - name: change events
+    docs: https://docs.confidolegal.com/hosted-fields-js/change-events
+    purpose: Emit the current state object on every field change.
+  state_object:
+    docs: https://docs.confidolegal.com/hosted-fields-js/state-object
+    note: Retrievable at any time with getState().
+  form_types:
+    supported: [ACH, CREDIT, DEBIT]
+    note: PaymentSessionMethod enum; the form type can be changed at runtime.
+  security:
+    trusted_domains_required: true
+    portal_path: Settings > Trusted Domains
+    wildcards: 'https://*.myapp.com'
+    https_required: true
+    localhost_exception: http allowed for localhost, testing only
+    sandbox_enforcement: >-
+      Sandbox does not restrict domains for hosted fields — but stored disbursement method
+      forms DO require correctly configured trusted domains even in sandbox.
+- name: Onboarding.js
+  kind: embeddable form
+  loader: https://js.gravity-legal.com/onboarding.js
+  sandbox_loader: https://js.sandbox.gravity-legal.com/onboarding.js
+  global: window.confidoOnboarding
+  docs: https://docs.confidolegal.com/onboarding-js/overview
+  purpose: >-
+    Renders the Confido firm application into a div in the partner's own app, so a law firm
+    is approved to accept payments without ever leaving the partner product.
+  methods:
+  - renderForm
+  token: onboarding_public_* from createOnboardingToken
+  events:
+    docs: https://docs.confidolegal.com/onboarding-js/change-events
+  styling:
+    custom_styles: true
+    docs: https://docs.confidolegal.com/onboarding-js/custom-styles
+  features:
+  - name: Owner invite links
+    docs: https://docs.confidolegal.com/onboarding-js/owner-invite-links
+    note: >-
+      Required because personal information must be collected for any business owner
+      holding more than 25% of the company — the owner at the keyboard cannot supply it
+      for the others.
+- name: Payment Links
+  kind: Confido-hosted page
+  docs: https://docs.confidolegal.com/docs/receive-money/payment-links
+  purpose: >-
+    Hosted payment page for a fixed amount tied to a Client. Delivered as a standalone
+    link or embedded in an iframe. No JavaScript integration required.
+  created_by: addPaymentLink
+  pci: Card data is collected on Confido-hosted pages; the partner's servers never see it.
+  benefit: >-
+    Payment methods Confido adds later (client financing, Apple Pay) arrive without partner
+    engineering work.
+  variants:
+  - name: Aggregate Payment Links
+    docs: https://docs.confidolegal.com/docs/receive-money/aggregate-payment-links
+    note: Hosted page for a full outstanding balance. Payments on these CANNOT be voided.
+  - name: Standing Links
+    schema_type: StandingLink
+    method: derived
+    source: graphql/confido-legal-introspection.json
+  branding:
+    firm_branding: firmBrandingUpdate, firmBrandingHeaderImgUploadUrl
+- name: Stored Disbursement Method forms
+  kind: hosted/embedded form
+  docs: https://docs.confidolegal.com/docs/embedded-forms/stored-disbursement-methods
+  purpose: Collect and store a recipient's payout destination.
+  created_by: [storedDisbursementMethodTokenCreate, storedDisbursementMethodLinkCreate]
+  security:
+    trusted_domains_required: true
+    note: Enforced in sandbox as well as production, unlike hosted fields.

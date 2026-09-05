@@ -1,0 +1,73 @@
+generated: '2026-09-05'
+method: searched
+source: https://docs.confidolegal.com/mcp
+provider: Confido Legal
+providerId: confido-legal
+name: Confido Legal Docs MCP Server
+status: published
+description: >-
+  Confido Legal runs a live, anonymous-readable remote MCP server on its documentation
+  host. It is a DOCUMENTATION server (Mintlify-shaped): the three tools search and read
+  the docs corpus and file feedback. It does NOT expose the Confido Legal GraphQL payments
+  operations as MCP tools — an agent that wants to move money still calls the GraphQL API
+  at api.gravity-legal.com directly with an x-api-key.
+deployment:
+  mode: remote
+  endpoint: https://docs.confidolegal.com/mcp
+  auth: none
+  verified: probed
+server_info:
+  name: Confido Legal Docs
+  version: '1.0.0'
+  protocolVersion: '2025-06-18'
+  capabilities:
+    tools:
+      listChanged: true
+    resources:
+      listChanged: true
+  transport: Streamable HTTP (text/event-stream)
+x-evidence:
+  fetched: '2026-09-05'
+  url: https://docs.confidolegal.com/mcp
+  method: 'POST jsonrpc 2.0 tools/list'
+  http_status: 200
+  authenticated: false
+  raw_tools: mcp/confido-legal-mcp-tools.json
+tools:
+- name: search_confido_legal_docs
+  title: Search documentation
+  category: documentation
+  description: >-
+    Search across the Confido Legal Docs knowledge base to find relevant information,
+    code examples, API references, and guides.
+  inputSchema_properties:
+  - query
+- name: query_docs_filesystem_confido_legal_docs
+  category: documentation
+  description: >-
+    Run a read-only shell-like query against a virtualized in-memory filesystem rooted
+    at / containing only the Confido Legal Docs documentation pages and OpenAPI specs.
+  inputSchema_properties:
+  - command
+- name: submit_feedback
+  title: Submit documentation feedback
+  category: feedback
+  description: >-
+    Report a problem with a Confido Legal documentation page so the docs team can fix it.
+  inputSchema_properties:
+  - path
+  - feedback
+tool_count: 3
+notes:
+- >-
+  Anonymous tools/list returned 200 with full inputSchema for all three tools — no OAuth
+  challenge, no invalid_token. The schemas recorded here are the live ones.
+- >-
+  /.well-known/oauth-authorization-server and /.well-known/oauth-protected-resource both
+  404 on docs.confidolegal.com, consistent with an unauthenticated server.
+- >-
+  No local-stdio package exists. Searches of npm (confido, confidolegal, gravity-legal),
+  PyPI and the gravity-legal GitHub org found no first-party MCP package.
+- >-
+  https://docs.confidolegal.com/sse returned 405 Method Not Allowed; the Streamable HTTP
+  endpoint at /mcp is the supported transport.

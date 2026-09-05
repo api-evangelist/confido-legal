@@ -1,0 +1,81 @@
+generated: '2026-09-05'
+method: probed
+source: https://docs.confidolegal.com/.well-known/agent-card.json
+provider: Confido Legal
+providerId: confido-legal
+name: Confido Legal Docs Agent Card
+description: >-
+  Confido Legal serves a real A2A Agent Card from its documentation host. The card
+  advertises one skill ("Confido") whose packaged instructions are published at
+  /.well-known/agent-skills/confido/skill.md on the same host. The card describes the
+  documentation agent surface, not the GraphQL payments API itself.
+discovery:
+  path: /.well-known/agent-card.json
+  canonical: true
+  host: docs.confidolegal.com
+x-evidence:
+  fetched: '2026-09-05'
+  url: https://docs.confidolegal.com/.well-known/agent-card.json
+  http_status: 200
+  content_type: application/json
+card:
+  file: a2a/confido-legal-agent-card.json
+  name: Confido Legal Docs
+  url: https://docs.confidolegal.com/
+  version: '1.0.0'
+  protocolVersion: '0.3'
+  preferredTransport: HTTP+JSON
+  provider_organization: Confido Legal Docs
+  documentationUrl: https://docs.confidolegal.com/
+  capabilities:
+    streaming: false
+    pushNotifications: false
+  skills:
+  - id: confido
+    name: Confido
+    url: https://docs.confidolegal.com/.well-known/agent-skills/confido/skill.md
+    saved_to: skills/confido-legal-confido-provider-skill.md
+grade: conformant
+grade_basis:
+  capabilities_is_object: true
+  protocol_version_present: true
+  skills_is_array: true
+  preferred_transport_present: true
+  default_input_modes_present: true
+  default_output_modes_present: true
+deviations:
+- field: protocolVersion
+  observed: '0.3'
+  note: >-
+    Declares A2A protocol 0.3 rather than 1.0.0. Not a hard-check failure — the three
+    structural requirements all pass — but the card predates the 1.0 protocol release.
+- field: skills[0].tags
+  observed: []
+  note: The single skill declares an empty tags array, so it is not discoverable by tag.
+- field: name / provider.organization
+  observed: Confido Legal Docs
+  note: >-
+    The card identifies the documentation site (Mintlify-generated) rather than the
+    Confido Legal payments platform. It carries no reference to the GraphQL API host
+    api.gravity-legal.com and exposes no A2A task endpoint distinct from the docs URL.
+other_hosts_probed:
+- host: confidolegal.com
+  agent_card_json: 404
+  agent_json: 404
+- host: www.confidolegal.com
+  agent_card_json: 404
+  agent_json: 404
+- host: api.gravity-legal.com
+  agent_card_json: 400
+  agent_json: 400
+  note: Apollo Server CSRF prevention answers 400 to any non-GraphQL GET.
+- host: api.sandbox.gravity-legal.com
+  agent_card_json: 400
+  agent_json: 400
+- host: app.confidolegal.com
+  agent_card_json: 200
+  agent_json: 200
+  rejected: true
+  note: >-
+    REJECTED as a false positive. The partner-portal SPA answers 200 with an HTML
+    document for every /.well-known/* path probed, including nonexistent ones. Not a card.

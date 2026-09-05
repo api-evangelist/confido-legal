@@ -1,0 +1,100 @@
+generated: '2026-09-05'
+method: searched
+source: https://docs.confidolegal.com/docs/webhooks/configure + https://docs.confidolegal.com/docs/webhooks/webhook-types
+provider: Confido Legal
+providerId: confido-legal
+description: >-
+  Confido Legal's event surface is webhooks only — no streaming, no queue, no GraphQL
+  subscriptions (the schema declares subscriptionType: null). 17 event types are published,
+  delivered as an array of id-only payloads to a URL you register.
+spec:
+  asyncapi_published_by_provider: false
+  asyncapi_generated_by_ae: asyncapi/confido-legal-webhooks-asyncapi.yml
+  probed:
+  - url: https://docs.confidolegal.com/asyncapi.yaml
+    status: 404
+  - url: https://api.gravity-legal.com/asyncapi.json
+    status: 400
+delivery:
+  transport: HTTPS POST
+  body_shape: JSON array of event payloads
+  payload_style: id-only pointers; query the API for state
+  content_type: application/json
+signature:
+  header: X-SIGNATURE
+  algorithm: HMAC-SHA512
+  encoding: base64
+  secret_location: Partner Portal
+  verification_example: published (TypeScript, crypto.createHmac)
+idempotency:
+  key_field: eventId
+  note: Resends reuse the same eventId, so an eventId-keyed handler is replay-safe.
+retry:
+  timeout_seconds: 5
+  ladder: [5m, 20m, 60m, 1d, dead-letter]
+  failure_state: failed
+  auto_disable: >-
+    If an event dead-letters and the URL has had no successful response in the previous
+    24 hours, Confido disables the webhook URL. It must be re-enabled in the Partner Portal.
+replay:
+  portal: per-URL event list with manual resend, including failed and dead-lettered events
+  api:
+    list: webhookEventsList (scoped to a webhookUrlId, Partner Admin)
+    resend: webhookEventResend (by eventId)
+  limitation: >-
+    There is no "replay all since timestamp". For a long outage, combine API polling with
+    portal resends.
+configuration:
+  portal: Settings > Webhooks
+  api: [webhookUrlCreate, webhookUrlUpdate, webhookUrlDelete, webhookUrlsList]
+  opt_in: >-
+    You receive nothing for types you have not selected. A silent stream is usually an
+    unselected type, not a bug.
+events:
+- name: transaction.created
+  resource: transaction
+  payload: rich (documented typing beyond id)
+- name: transaction.funds_in_transit
+  resource: transaction
+- name: transaction.deposited
+  resource: transaction
+- name: transaction.voided
+  resource: transaction
+- name: transaction.refunded
+  resource: transaction
+- name: transaction.partially_refunded
+  resource: transaction
+- name: transaction.ach_returned
+  resource: transaction
+  note: Bank-initiated reversal of a settled ACH payment. Partial returns do not exist.
+- name: disbursement.updated
+  resource: disbursement
+  note: Carries both disbursement and oldDisbursement for diffing.
+- name: firm.updated
+  resource: firm
+  note: Fires on every firm.status change through the onboarding ladder.
+- name: statement.created
+  resource: statement
+- name: statement.updated
+  resource: statement
+  note: Documented as very unlikely — statements should be final at creation.
+- name: stored_payment_method.created
+  resource: storedPaymentMethod
+- name: stored_payment_method.updated
+  resource: storedPaymentMethod
+- name: stored_payment_method.deleted
+  resource: storedPaymentMethod
+- name: stored_disbursement_method.created
+  resource: storedDisbursementMethod
+- name: stored_disbursement_method.updated
+  resource: storedDisbursementMethod
+- name: stored_disbursement_method.deleted
+  resource: storedDisbursementMethod
+event_count: 17
+graphql_subscriptions:
+  supported: false
+  evidence: 'graphql/confido-legal-introspection.json: __schema.subscriptionType is null'
+gaps:
+- >-
+  No webhook fires when a Firm API token is created or revoked, so credential rotation is
+  invisible to a consumer until a call fails.

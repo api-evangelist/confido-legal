@@ -32,13 +32,13 @@ accessModel:
   - plans
   generated: '2026-07-22'
   method: derived
-position: Consuming
+position: Producing
 access: 3rd-Party
 image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/confido-legal.png
 url: >-
   https://raw.githubusercontent.com/api-evangelist/confido-legal/refs/heads/main/apis.yml
 created: '2025-03-01'
-modified: '2026-04-28'
+modified: '2026-09-05'
 specificationVersion: '0.23'
 kind: company
 tags:
@@ -75,16 +75,22 @@ apis:
   properties:
   - type: Documentation
     url: https://docs.confidolegal.com/
-  - type: GraphQL Endpoint
-    url: https://api.gravity-legal.com/
+  - type: GraphQL
+    url: graphql/confido-legal.graphql
+  - type: GraphQLSchema
+    url: graphql/confido-legal-introspection.json
   - type: Sandbox
     url: https://api.sandbox.gravity-legal.com/
-  - type: API Playground
-    url: https://studio.apollographql.com/
-  - type: LLMs
+  - type: Playground
+    url: https://studio.apollographql.com/graph/Confido-Legal-vqze3p/variant/current/explorer
+  - type: LLMsTxt
     url: https://docs.confidolegal.com/llms.txt
-  - url: graphql/confido-legal-graphql.md
-    type: GraphQL
+  - type: Webhooks
+    url: https://docs.confidolegal.com/docs/webhooks/configure
+  - type: RateLimits
+    url: https://docs.confidolegal.com/docs/introduction/api-limits
+  - type: Authentication
+    url: https://docs.confidolegal.com/docs/introduction/authorization
   contact:
   - FN: Confido Legal Support
     email: support@confidolegal.com
@@ -107,30 +113,92 @@ apis:
   - Tokenize payment methods for repeat retainer billing
   - Reconcile transactions with QuickBooks or Salesforce
 common:
-- type: DomainSecurity
-  url: security/confido-legal-domain-security.yml
-- type: LinkedIn
-  url: https://www.linkedin.com/company/confidolegal
 - type: Website
   url: https://confidolegal.com/
+- type: DeveloperPortal
+  url: https://confidolegal.com/developer-center
 - type: Documentation
   url: https://docs.confidolegal.com/
-- type: DeveloperPortal
-  url: https://docs.confidolegal.com/
-- type: Sandbox
-  url: https://api.sandbox.gravity-legal.com/
-- type: Production
-  url: https://api.gravity-legal.com/
+- type: APIReference
+  url: https://studio.apollographql.com/graph/Confido-Legal-vqze3p/variant/current/explorer
+- type: GettingStarted
+  url: https://docs.confidolegal.com/docs/introduction/overview
 - type: Integrations
   url: https://confidolegal.com/integrations
 - type: Pricing
   url: https://confidolegal.com/pricing
+- type: SignUp
+  url: https://app.confidolegal.com/signup
+- type: Login
+  url: https://app.confidolegal.com/login
 - type: Blog
-  url: https://confidolegal.com/blog
+  url: https://confidolegal.com/financiallylegal
+- type: HelpCenter
+  url: https://confidolegal.com/knowledgebase
+- type: Support
+  url: https://confidolegal.com/contact
+  email: support@confidolegal.com
 - type: Contact
   url: https://confidolegal.com/contact
-- type: Support
-  email: support@confidolegal.com
+- type: StatusPage
+  url: https://status.confidolegal.com
+- type: GitHubOrganization
+  url: https://github.com/gravity-legal
+- type: Postman
+  url: https://www.postman.com/confido/lexicon-gravity-legal-demo
+- type: LinkedIn
+  url: https://www.linkedin.com/company/confidolegal
+- type: Sandbox
+  url: sandbox/confido-legal-sandbox.yml
+- type: Packages
+  url: packages/confido-legal-packages.yml
+- type: SDKs
+  url: packages/confido-legal-packages.yml
+- type: Components
+  url: components/confido-legal-components.yml
+- type: Authentication
+  url: authentication/confido-legal-authentication.yml
+- type: Conventions
+  url: conventions/confido-legal-conventions.yml
+- type: Idempotency
+  url: conventions/confido-legal-conventions.yml
+- type: ErrorCatalog
+  url: errors/confido-legal-problem-types.yml
+- type: Lifecycle
+  url: lifecycle/confido-legal-lifecycle.yml
+- type: Deprecation
+  url: lifecycle/confido-legal-lifecycle.yml
+- type: ChangeLog
+  url: changelog/confido-legal-changelog.yml
+- type: DataModel
+  url: data-model/confido-legal-data-model.yml
+- type: Conformance
+  url: conformance/confido-legal-conformance.yml
+- type: AsyncAPI
+  url: asyncapi/confido-legal-webhooks-asyncapi.yml
+- type: Webhooks
+  url: asyncapi/confido-legal-webhooks.yml
+- type: MCPServer
+  url: mcp/confido-legal-mcp.yml
+- type: ToolCrosswalk
+  url: mcp/confido-legal-tool-crosswalk.yml
+- type: AgentCard
+  url: a2a/confido-legal-a2a.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: LLMsTxt
+  url: llms/confido-legal-llms.txt
+- type: WellKnown
+  url: well-known/confido-legal-well-known.yml
+- type: Plans
+  url: plans/confido-legal-plans-pricing.yml
+- type: RateLimits
+  url: rate-limits/confido-legal-rate-limits.yml
+- type: FinOps
+  url: finops/confido-legal-finops.yml
+- type: DomainSecurity
+  url: security/confido-legal-domain-security.yml
+
 integrations:
 - name: confido-logo
 - name: litify-logo
@@ -159,3 +227,9 @@ integrations:
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
+
+x-enrichment:
+  date: '2026-09-05'
+  status: enriched
+  artifacts_added: 28
+  pass: local-v3

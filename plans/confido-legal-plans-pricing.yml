@@ -4,153 +4,98 @@ schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main
 provider: Confido Legal
 providerId: confido-legal
 created: '2026-05-04'
-# Provenance stamped 2026-08-11: this artifact was written by the API Evangelist
-# bulk sweep dated 2026-05-04, not harvested from the provider. See roadmap#35.
-method: generated
-modified: '2026-05-04'
-tags:
-  - Compliance
-  - Disbursements
-  - GraphQL
-  - IOLTA
-  - Law
-  - LawTech
-  - Legal
-  - Legal Technology
-  - Payments
-  - Trust Accounting
-description: Machine-readable plans and pricing scaffold for this API provider. Conforms to the API Commons
-  Plans schema. Tier limits and prices are scaffold defaults; replace with provider-published values.
+modified: '2026-09-05'
+generated: '2026-09-05'
+method: searched
+source: https://confidolegal.com/pricing
+description: >-
+  Confido Legal's published pricing. Replaces the 2026-05-04 bulk scaffold, whose Free /
+  Professional tiers and request quotas were invented and never existed. Confido runs NO
+  tiered plans and charges NO subscription — it is interchange-style transaction pricing on
+  a single flat rate card, with one optional onboarding fee. Every figure below is quoted
+  from the pricing page.
+pricing_model: per-transaction
+plan_count: 1
+subscription_fees:
+  monthly: 0
+  annual: 0
+  termination: 0
+  note: The pricing page states there are no monthly, annual, or termination fees.
 plans:
-  - id: confido-legal-free
-    name: Free
-    type: freemium
-    description: Free entry tier for the Confido Legal API surface. Intended for evaluation, prototyping,
-      and low-volume integrations. Real limits and pricing must be reconciled with the provider's published
-      plan documentation.
-    entries:
-      - label: API Requests
-        description: Monthly API request quota across all included endpoints
-        name: api_requests
-        type: quota
-        metric: requests
-        limit: 1000
-        timeFrame: month
-        geo: global
-        domains:
-          - https://api.gravity-legal.com/
-        unit: 1
-        price: '0.00'
-        userMultiplied: false
-      - label: Rate Limit
-        description: Maximum requests per minute on the free tier
-        name: rate_limit
-        type: rate
-        metric: requests_per_minute
-        limit: 10
-        timeFrame: minute
-        geo: global
-        domains:
-          - https://api.gravity-legal.com/
-        unit: 1
-        price: '0.00'
-        userMultiplied: false
-    elements:
-      - name: Public Documentation
-      - name: Community Support
-      - name: Sandbox Access
-      - name: Confido Legal GraphQL API
-  - id: confido-legal-pro
-    name: Professional
-    type: paid
-    description: Production tier for Confido Legal. Provides higher quotas, priority support, and access
-      to the broader API portfolio. Pricing placeholder; align with the provider's pricing page.
-    entries:
-      - label: API Requests
-        description: Monthly API request quota
-        name: api_requests
-        type: quota
-        metric: requests
-        limit: 100000
-        timeFrame: month
-        geo: global
-        domains:
-          - https://api.gravity-legal.com/
-        unit: 1
-        price: TBD
-        userMultiplied: false
-      - label: Rate Limit
-        description: Maximum requests per minute on the professional tier
-        name: rate_limit
-        type: rate
-        metric: requests_per_minute
-        limit: 100
-        timeFrame: minute
-        geo: global
-        domains:
-          - https://api.gravity-legal.com/
-        unit: 1
-        price: '0.00'
-        userMultiplied: false
-      - label: Overage
-        description: Per-request price after monthly quota is exceeded
-        name: overage
-        type: metered
-        metric: requests
-        limit: -1
-        timeFrame: month
-        geo: global
-        domains:
-          - https://api.gravity-legal.com/
-        unit: 1000
-        price: TBD
-        userMultiplied: false
-    elements:
-      - name: All Production Endpoints
-      - name: Email Support
-      - name: SLA Targets
-      - name: Webhook Subscriptions
-      - name: Confido Legal GraphQL API
-  - id: confido-legal-enterprise
-    name: Enterprise
-    type: enterprise
-    description: Custom-negotiated tier for Confido Legal. Includes dedicated capacity, contractual SLAs,
-      security review, data residency options, and named technical account management.
-    entries:
-      - label: API Requests
-        description: Negotiated request volume; -1 indicates uncapped subject to fair use
-        name: api_requests
-        type: quota
-        metric: requests
-        limit: -1
-        timeFrame: month
-        geo: configurable
-        domains:
-          - https://api.gravity-legal.com/
-        unit: 1
-        price: custom
-        userMultiplied: false
-      - label: Rate Limit
-        description: Negotiated burst and steady-state rate
-        name: rate_limit
-        type: rate
-        metric: requests_per_minute
-        limit: 1000
-        timeFrame: minute
-        geo: configurable
-        domains:
-          - https://api.gravity-legal.com/
-        unit: 1
-        price: custom
-        userMultiplied: false
-    elements:
-      - name: Unlimited / Negotiated Volume
-      - name: 24/7 Dedicated Support
-      - name: Contractual SLA
-      - name: Security & Compliance Review
-      - name: Dedicated Account Manager
-      - name: Custom Data Residency
-      - name: Confido Legal GraphQL API
-maintainers:
-  - FN: Kin Lane
-    email: kin@apievangelist.com
+- id: confido-legal-standard
+  name: Standard
+  type: usage-based
+  currency: USD
+  billing_period: per-transaction
+  description: >-
+    The only plan. Every Confido Legal account gets the same rate card and the same feature
+    set; there is no gating by tier.
+  entries:
+  - label: ACH payment
+    name: ach_payment
+    type: transaction-fee
+    metric: percent_of_transaction
+    rate: '1%'
+    cap: '$30.00'
+    price_note: 1% per transaction, capped at $30
+  - label: Credit / debit card payment
+    name: card_payment
+    type: transaction-fee
+    metric: percent_of_transaction
+    rate: '2.95%'
+    cap: null
+    price_note: 2.95% per transaction
+  - label: Chargeback or unauthorized return
+    name: chargeback_fee
+    type: incident-fee
+    metric: per_event
+    price: '25.00'
+    price_note: $25 chargeback or unauthorized return fee
+  - label: Disbursement
+    name: disbursement_fee
+    type: transaction-fee
+    metric: per_disbursement
+    price: '3.00'
+    price_note: $3 per disbursement
+  - label: Expedited funds availability (paid by recipient)
+    name: expedited_delivery
+    type: transaction-fee
+    metric: percent_of_transaction
+    rate: '1%'
+    cap: '$95.00'
+    price_note: >-
+      Recipients receive funds via ACH at no cost in 4-6 days, or pay 1% (capped at $95 per
+      transaction) for faster delivery.
+    paid_by: recipient
+  - label: Concierge onboarding
+    name: concierge_onboarding
+    type: one-time-fee
+    price: '500.00'
+    price_note: >-
+      $500 one-time fee, required only for firms NOT integrating through one of Confido's
+      partners. A firm arriving through a partner integration does not pay it.
+    conditional: true
+  elements:
+  - name: Card account updater
+  - name: U.S.-based support
+  - name: Access to all integrations
+  - name: Access to all payment methods
+  - name: Payment links
+  - name: Automated payment plans
+  - name: Stored payment methods
+  - name: Split payments
+  - name: Compliance fee routing
+  - name: Credit card surcharging (where permitted)
+  - name: Real-time disbursement tracking
+api_access_pricing:
+  metered: false
+  detail: >-
+    API access is not separately priced and carries no request quota. There is no free tier
+    versus paid tier for the API — a partner integrates against the same GraphQL endpoint
+    regardless of volume, subject to the flat 500 requests/minute limit.
+  see: rate-limits/confido-legal-rate-limits.yml
+partner_model:
+  detail: >-
+    A software company becomes a Partner by contacting Confido; there is no self-serve
+    partner signup. Firms self-serve for the sandbox at app.sandbox.confidolegal.com.
+  contact: support@confidolegal.com

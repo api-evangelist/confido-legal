@@ -1,0 +1,128 @@
+generated: '2026-09-05'
+method: searched
+source: >-
+  Registry searches of npm, PyPI, RubyGems, crates.io, NuGet, Maven Central and pkg.go.dev;
+  the gravity-legal GitHub organization; and https://docs.confidolegal.com/
+provider: Confido Legal
+providerId: confido-legal
+description: >-
+  Confido Legal ships two first-party browser SDKs, both distributed as unpinned single
+  files from its own S3/CloudFront CDN rather than through any package registry. There is
+  no server-side SDK in any language — partners write GraphQL against api.gravity-legal.com
+  directly.
+registry_searches:
+- registry: npm
+  queries: [confido, confidolegal, confido-legal, gravity-legal]
+  result: no first-party package
+- registry: PyPI
+  result: no first-party package
+- registry: RubyGems
+  result: no first-party package
+- registry: crates.io
+  result: no first-party package
+- registry: NuGet
+  result: no first-party package
+- registry: Maven Central
+  result: no first-party package
+- registry: pkg.go.dev
+  result: no first-party package
+packages:
+- name: hosted-fields.js
+  official: true
+  language: JavaScript
+  platform: browser
+  registry: cdn
+  url: https://js.gravity-legal.com/hosted-fields.js
+  sandbox_url: https://js.sandbox.gravity-legal.com/hosted-fields.js
+  install: '<script src="https://js.gravity-legal.com/hosted-fields.js"></script>'
+  global: window.confidoHostedFields
+  version: null
+  published: null
+  version_note: >-
+    CHECKED, NOTHING TO RECORD. The distribution is unpinned: there is no version in the
+    URL, no versioned alias, no registry metadata endpoint, and no version constant in the
+    bundle (the only version string inside is React 18.0.1, a bundled dependency). The file
+    floats to whatever is current. The only currency signal available to a consumer is the
+    HTTP Last-Modified header — 2026-08-29 on production, 2026-08-28 on sandbox — served
+    with cache-control max-age=0 from AmazonS3 behind CloudFront. A consumer cannot pin a
+    version, cannot pin an integrity hash against a stable artifact, and cannot tell what
+    they are getting; neither can we.
+  size_bytes: 387894
+  last_modified: '2026-08-29'
+  docs: https://docs.confidolegal.com/hosted-fields-js/overview
+  purpose: >-
+    Injects Confido-hosted iframes into divs on the partner's page to collect card and ACH
+    data, keeping the partner out of PCI scope. Singleton per window. Posts
+    confido_hosted_fields_script_loaded via window.postMessage when ready.
+- name: onboarding.js
+  official: true
+  language: JavaScript
+  platform: browser
+  registry: cdn
+  url: https://js.gravity-legal.com/onboarding.js
+  sandbox_url: https://js.sandbox.gravity-legal.com/onboarding.js
+  install: '<script src="https://js.gravity-legal.com/onboarding.js"></script>'
+  global: window.confidoOnboarding
+  version: null
+  published: null
+  version_note: >-
+    CHECKED, NOTHING TO RECORD. Same unpinned CDN distribution as hosted-fields.js — no
+    version in the URL, no registry, no version constant. Last-Modified 2026-08-29.
+  size_bytes: 1156002
+  last_modified: '2026-08-29'
+  docs: https://docs.confidolegal.com/onboarding-js/overview
+  purpose: >-
+    Renders the Confido firm-onboarding application form into a div in the partner's own
+    app via renderForm, so the firm never leaves the partner UI.
+sample_code:
+- name: legal-wave
+  official: true
+  kind: example application
+  language: TypeScript
+  repository: https://github.com/gravity-legal/legal-wave
+  description: An example application that showcases the Gravity Legal payments platform.
+  last_pushed: '2024-05-14'
+  archived: false
+  registry: null
+  version: null
+  published: '2024-05-14'
+  note: >-
+    Not a client library — a demo app. It is the ONLY public repository in the
+    gravity-legal GitHub organization, and it has not been touched since May 2024, well
+    before the voids-and-refunds async migration and the FirmStatus.DECLINED addition. Any
+    integrator copying from it is copying pre-migration patterns.
+  docs: https://docs.confidolegal.com/examples/legal-wave
+postman:
+  workspace: https://www.postman.com/confido/lexicon-gravity-legal-demo
+  publisher_handle: confido
+  publisher_name: Confido Legal
+  publisher_type: team
+  public: true
+  collections: 1
+  created: '2023-06-21'
+  last_updated: '2023-06-21'
+  method: searched
+  source: Postman public search index (collaboration.workspace), queried 2026-09-05
+  note: >-
+    A real first-party public Postman workspace exists, but it is a 2023 demo
+    ("Lexicon/Gravity Legal Demo") with a single collection and has not been touched in
+    three years — it predates the voids-and-refunds async migration entirely. A separate
+    "Confido Legal" workspace carrying 10 collections is published by the handle
+    postman-atlas (Postman's own curated index), NOT by Confido, and is deliberately not
+    credited to the provider.
+
+github:
+  organization: https://github.com/gravity-legal
+  public_repos: 1
+  note: >-
+    The org is still under the pre-rebrand name. github.com/confidolegal does not exist
+    (GitHub API returns 404).
+findings:
+- >-
+  No server-side SDK exists in any language. Every partner integrating Confido writes raw
+  GraphQL against api.gravity-legal.com, which makes the schema and this repo's
+  graphql/confido-legal.graphql the entire integration surface.
+- >-
+  Both browser SDKs are unpinned. That is a supply-chain and reproducibility gap a consumer
+  cannot work around: no SRI hash is stable, no version can be locked, and a change ships
+  to every partner's production page the moment the S3 object is replaced.

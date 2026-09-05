@@ -1,0 +1,208 @@
+generated: '2026-09-05'
+method: derived
+source: graphql/confido-legal-introspection.json + https://docs.confidolegal.com/ + live probes 2026-09-05
+provider: Confido Legal
+providerId: confido-legal
+description: >-
+  Standards and cross-cutting conventions the Confido Legal API does and does not conform
+  to. Confido publishes no compliance page, no trust center and no certification list, so
+  everything below is read either from the contract itself or from a specific documentation
+  sentence — nothing is inferred from marketing language.
+regulatory_regime: payments
+entries:
+- id: graphql
+  name: GraphQL (June 2018 spec)
+  conforms: true
+  evidence: >-
+    Live introspection at https://api.gravity-legal.com/ returns a complete __schema
+    (285 types, 41 query fields, 98 mutation fields). Saved to
+    graphql/confido-legal-introspection.json and rendered to graphql/confido-legal.graphql.
+- id: graphql-introspection-open
+  name: Open schema introspection
+  conforms: true
+  evidence: >-
+    Introspection succeeds anonymously with no x-api-key when the request carries
+    Content-Type application/json (Apollo CSRF prevention rejects it otherwise). Probed
+    2026-09-05, HTTP 200.
+- id: relay-cursor-connections
+  name: Relay Cursor Connections
+  conforms: true
+  partial: true
+  evidence: >-
+    The schema declares Connection/Edge/PageInfo triples for ten collections
+    (TransactionConnection, PaymentConnection, PaymentLinkConnection, ClientConnection,
+    MatterConnection, ContactConnection, SubscriptionConnection, FirmConnection,
+    StoredPaymentMethodConnection, AggregatePaymentLinkConnection). The top-level *List
+    queries use plain *ListResult wrappers instead, so the surface is mixed.
+- id: graphql-deprecation
+  name: GraphQL @deprecated with replacement guidance
+  conforms: true
+  evidence: >-
+    26 schema members carry @deprecated, and every one names its replacement in
+    deprecationReason (e.g. Transaction.status -> status_v2, refundTransaction ->
+    transactionRefund). Enumerated in lifecycle/confido-legal-lifecycle.yml.
+- id: hmac-sha512-webhook-signing
+  name: HMAC-SHA512 webhook signature
+  conforms: true
+  evidence: >-
+    https://docs.confidolegal.com/docs/webhooks/configure publishes the X-SIGNATURE header,
+    the sha512 HMAC construction, base64 digest encoding, and reference verification code.
+- id: rfc9457
+  name: RFC 9457 Problem Details
+  conforms: false
+  evidence: >-
+    Errors are GraphQL errors[] objects with message/extensions.code/code/status. No
+    application/problem+json, no type URI. Observed live 2026-09-05.
+- id: idempotency-key
+  name: Idempotency-Key request header
+  conforms: false
+  evidence: >-
+    No Idempotency-Key header is documented anywhere in the docs corpus (grep of
+    docs.confidolegal.com/llms-full.txt for "idempot" returns only the webhook eventId
+    guidance). The only request-side replay key is the optional client-supplied UUID v4 on
+    DisbursementCreateInput.id.
+- id: rfc8594-sunset
+  name: RFC 8594 Sunset header
+  conforms: false
+  evidence: No Sunset or Deprecation HTTP headers, and no removal dates on any deprecated member.
+- id: ratelimit-headers
+  name: RateLimit / X-RateLimit response headers
+  conforms: false
+  evidence: >-
+    https://docs.confidolegal.com/docs/introduction/api-limits states the limits (500 rpm,
+    10 concurrent, 429 on exhaustion) but documents no response headers and no Retry-After.
+- id: oauth2
+  name: OAuth 2.0
+  conforms: false
+  evidence: >-
+    Authentication is a static x-api-key. The Connect flow is redirect-and-code-exchange
+    shaped but is not OAuth — no token endpoint, no refresh token, no scope parameter, no
+    PKCE. /.well-known/oauth-authorization-server 404s on every host.
+- id: oidc
+  name: OpenID Connect
+  conforms: false
+  evidence: /.well-known/openid-configuration returns 404 on confidolegal.com and docs.confidolegal.com.
+- id: rfc9116-security-txt
+  name: RFC 9116 security.txt
+  conforms: false
+  evidence: >-
+    /.well-known/security.txt returns 404 on confidolegal.com, www.confidolegal.com and
+    docs.confidolegal.com; 400 (Apollo CSRF) on both API hosts. Probed 2026-09-05.
+- id: rfc9727-api-catalog
+  name: RFC 9727 /.well-known/api-catalog
+  conforms: false
+  evidence: 404 on every non-API host probed 2026-09-05.
+- id: a2a-agent-card
+  name: A2A Agent Card
+  conforms: true
+  evidence: >-
+    https://docs.confidolegal.com/.well-known/agent-card.json returns HTTP 200 with a
+    structurally conformant card — capabilities is an object, protocolVersion is present
+    ("0.3"), skills is an array, and preferredTransport/defaultInputModes/defaultOutputModes
+    are all populated. Graded conformant in a2a/confido-legal-a2a.yml.
+- id: mcp
+  name: Model Context Protocol
+  conforms: true
+  evidence: >-
+    https://docs.confidolegal.com/mcp answers an anonymous tools/list with protocolVersion
+    2025-06-18 and three tools carrying full inputSchema. Documentation server, not an API
+    operations server — see mcp/confido-legal-tool-crosswalk.yml.
+- id: llms-txt
+  name: llms.txt
+  conforms: true
+  evidence: >-
+    https://docs.confidolegal.com/llms.txt returns HTTP 200 with 54 documentation entries;
+    llms-full.txt is also served (142KB). Saved to llms/confido-legal-llms.txt.
+- id: asyncapi
+  name: AsyncAPI
+  conforms: false
+  evidence: >-
+    No AsyncAPI document is published. The 17 webhook types are documented in prose only;
+    API Evangelist generated asyncapi/confido-legal-webhooks-asyncapi.yml from them.
+- id: openapi
+  name: OpenAPI
+  conforms: false
+  not_applicable: true
+  evidence: >-
+    Confido is GraphQL-native. /openapi.json, /openapi.yaml, /swagger.json, /api-docs and
+    /v1/openapi.json all return 400 (Apollo CSRF) on api.gravity-legal.com and 404 on
+    docs.confidolegal.com. Absence of OpenAPI is a design choice here, not a gap — the
+    machine-readable contract is the GraphQL schema.
+domain_standards:
+  note: >-
+    Read from the CONTRACT, not from marketing prose. Confido's schema carries two genuine
+    domain-standard signatures for the payments regime and is silent on the rest.
+  entries:
+  - id: nacha-ach-returns
+    name: NACHA ACH return codes
+    conforms: true
+    confidence: medium
+    evidence: >-
+      Transaction.achReturnCode and Transaction.achReturnReason are first-class schema
+      fields (graphql/confido-legal.graphql lines 3335-3336), alongside
+      achReturnWindowActive and the achReturn TransactionType. The docs describe the
+      simulated return as an "Insufficient Funds return error code"
+      (https://docs.confidolegal.com/docs/payments-lifecycle/ach-returns), which is the
+      NACHA R01 vocabulary. Confido does not publish the code table itself, so this is a
+      structural rather than a documented conformance.
+  - id: pci-dss
+    name: PCI DSS
+    conforms: true
+    confidence: medium
+    scope: scope-reduction claim, not a published attestation
+    evidence: >-
+      The docs state three times that Hosted Fields and Payment Links keep the integrator
+      out of PCI scope by collecting card data in Confido-owned iframes and hosted pages
+      (https://docs.confidolegal.com/docs/hosted-fields/overview,
+      https://docs.confidolegal.com/docs/receive-money/payment-links). Confido asserts the
+      architecture; it publishes no AOC, no SAQ level, no ROC and no compliance page.
+      Recorded as a documented architectural claim, NOT as a verified certification.
+  - id: card-brand-surcharge-rules
+    name: US state and card-brand surcharge rules
+    conforms: true
+    confidence: high
+    evidence: >-
+      The SurchargeRegion enum enumerates 58 US states and territories, and surcharge
+      configuration appears in 36 places across the schema (firm-level allow, per-link
+      override, per-region rate, surchargeDefaulted, proportional surcharge refund). The
+      docs state that card-brand rules and state laws on credit-card surcharges change and
+      that firms should enable it only where permitted
+      (https://docs.confidolegal.com/docs/receive-money/payment-links). Encoding the
+      jurisdiction boundary in the type system is the strongest domain-standard signature
+      in this contract.
+  - id: iolta-trust-segregation
+    name: IOLTA / attorney trust-account segregation
+    conforms: true
+    confidence: high
+    evidence: >-
+      BankAccount.category is documented in the schema as "The category of the bank
+      account. Either 'operating' or 'trust'", and the split is carried through
+      PaymentLink.amounts, FirmSettings default deposit accounts and the disbursement
+      funding account. This is the legal-industry rule Confido exists to enforce, and it is
+      expressed in the contract rather than in a policy document. It is a bar-association
+      requirement rather than a published technical specification, so no external
+      conformance document exists to point at.
+  absent:
+  - id: iso-20022
+    reason: No ISO 20022 message types, pain/pacs identifiers or MX schemas anywhere in the schema.
+  - id: 3-d-secure
+    reason: >-
+      No 3DS, threeDS, ECI, CAVV or liability-shift fields. Consistent with a US-only
+      card-present-absent acquirer; SCA is a European requirement.
+  - id: psd2-sca
+    reason: US-market provider; no SCA surface and no EU regulatory claim.
+  - id: emv
+    reason: No card-present or terminal surface — this is a card-not-present platform.
+  - id: confirmation-of-payee
+    reason: UK scheme; not applicable to a US ACH/card provider.
+certifications:
+  published: false
+  detail: >-
+    No trust center, no SOC 2 or ISO 27001 claim, and no compliance page was found.
+    Probed https://trust.confidolegal.com (does not resolve),
+    https://confidolegal.com/security (404), https://confidolegal.com/compliance (404) and
+    https://confidolegal.com/security-and-compliance (404), plus the full 488-URL
+    sitemap.xml. probe-security-programs.py returned vdp=none trust=none.
+  note: >-
+    Because nothing is published, NO Compliance or TrustCenter pointer is emitted in
+    apis.yml. A pointer here would assert a page Confido does not serve.

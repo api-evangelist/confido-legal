@@ -1,0 +1,101 @@
+generated: '2026-09-05'
+method: searched
+source: https://docs.confidolegal.com/docs/introduction/authorization
+provider: Confido Legal
+providerId: confido-legal
+description: >-
+  Confido Legal authenticates every GraphQL request with a single API-key header. There is
+  no OAuth 2.0, no OIDC, no mutual TLS and no scope system; authority is expressed by which
+  of four token TYPES you hold, each identifiable from a human-readable prefix.
+docs: https://docs.confidolegal.com/docs/introduction/authorization
+schemes:
+- id: apiKey
+  type: apiKey
+  in: header
+  name: x-api-key
+  description: All four token types are presented in the same header.
+token_types:
+- name: Partner Token
+  prefix: p_secret_
+  environment_encoded: true
+  audience: server-side only
+  issued_by: Confido Legal Partner Portal, Settings
+  purpose: >-
+    Create and manage Firms and Firm tokens. Used with createFirm, firmApiTokenCreate and
+    firmApiTokenExchangeCode.
+  never_expose_to_frontend: true
+- name: Firm Token
+  prefix: f_secret_
+  environment_encoded: true
+  audience: server-side only
+  issued_by: firmApiTokenCreate or createFirm (called with a Partner token), or the Connect code exchange
+  purpose: The workhorse credential — most API operations run under a Firm token.
+  never_expose_to_frontend: true
+- name: Payment Session Token
+  prefix: pay_public_
+  environment_encoded: true
+  audience: browser / frontend
+  issued_by: paymentSessionCreate (Firm token required)
+  purpose: Initialize the Hosted Fields JavaScript SDK for one payment.
+  single_use: true
+- name: Onboarding Token
+  prefix: onboarding_public_
+  environment_encoded: true
+  audience: browser / frontend
+  issued_by: createOnboardingToken (Firm token required)
+  purpose: Initialize onboarding.js to render the firm application form.
+  short_lived: true
+prefix_semantics: >-
+  Tokens are self-describing. In "p_secret_sandbox_…" the leading segment names the token
+  type, "secret" or "public" says whether it may reach a browser, and "sandbox" names the
+  environment. Sandbox and production tokens are not interchangeable.
+scopes:
+  supported: false
+  detail: >-
+    Confido states plainly that Firm API tokens are NOT scoped — there is no read-only
+    versus full-access token. Any valid Firm token can perform every Firm-level operation
+    the product allows server-side. There is consequently no scopes/ artifact for this
+    provider.
+  schema_note: >-
+    The schema does expose a `Scope` type (with ScopeFirm, ScopePartner and
+    ScopePaymentSession variants) returned by the `me` query. This identifies WHICH
+    principal a token represents, not a permission set.
+lifecycle:
+  expiry: >-
+    Firm tokens are long-lived — no TTL, no refresh endpoint, no rotate endpoint. Payment
+    Session tokens are single-use; Onboarding tokens are short-lived.
+  rotation: >-
+    Create a new token (firmApiTokenCreate), then revoke the old one in the Confido Legal
+    app under Settings, API Tokens. Revocation takes effect immediately.
+  multiple_tokens: A Firm may hold more than one active token simultaneously.
+  revocation_notification: >-
+    No webhook fires when a Firm API token is created or revoked. Handle 401/403 responses
+    by checking the portal — there is no push signal to react to.
+  management_operations: [firmApiTokenCreate, firmApiTokenList, firmApiTokenUpdate, firmApiTokenDelete, firmApiTokenExchangeCode]
+delegation:
+  mechanism: Connect
+  detail: >-
+    A partner obtains authority over an existing firm through a redirect flow shaped like
+    OAuth but not implementing it: the user is sent to the partner's unique Connect URL,
+    authorizes, and is redirected to the partner's Callback URL with a one-time-use `code`
+    and an opaque `state` passthrough. firmApiTokenExchangeCode swaps the code for a Firm
+    token using the Partner token.
+  docs: https://docs.confidolegal.com/docs/firm-onboarding/connect
+  note: >-
+    No token endpoint, no refresh token, no scope parameter and no PKCE — this is a
+    bespoke code exchange, not OAuth 2.0.
+observed_failure:
+  probed: '2026-09-05'
+  request: 'POST https://api.gravity-legal.com/ with x-api-key: f_secret_sandbox_<invalid>'
+  http_status: 500
+  body: >-
+    {"errors":[{"message":"Context creation failed: Invalid firm token.",
+    "extensions":{"code":"INTERNAL_SERVER_ERROR"},"code":"INTERNAL_SERVER_ERROR","status":500}]}
+  finding: >-
+    An invalid credential returns HTTP 500 with extensions.code INTERNAL_SERVER_ERROR, not
+    a 401 and not an auth-specific code. A client cannot distinguish a revoked token from a
+    server fault by status or code — only by parsing the message string.
+anonymous_surface:
+  detail: >-
+    Schema introspection and the `me` query answer without any x-api-key (me returns a
+    Scope typename). No business data is reachable anonymously.
