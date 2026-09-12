@@ -2,6 +2,13 @@
   "repo": "confido-legal",
   "feeds": [
     {
+      "source": "https://app.confidolegal.com/login",
+      "feed_url": "https://app.confidolegal.com/login",
+      "title": "",
+      "saved": 0,
+      "method": "none"
+    },
+    {
       "source": "https://confidolegal.com/pricing",
       "feed_url": "https://confidolegal.com/pricing",
       "title": "",
@@ -10,5 +17,5 @@
     }
   ],
   "post_count": 0,
-  "fetched": "2026-08-30T22:33:40Z"
+  "fetched": "2026-09-06T19:17:18Z"
 }
