@@ -41,7 +41,23 @@ created: '2025-03-01'
 modified: '2026-09-05'
 specificationVersion: '0.23'
 kind: company
+x-docs-platform: mintlify
+x-docs-platform-confidence: medium
+x-docs-platform-checked: 2026-09-24
+x-docs-hosting: vercel
 tags:
+- Compliance
+- Disbursements
+- GraphQL
+- IOLTA
+- Law
+- LawTech
+- Legal
+- Legal Tech
+- Payments
+- Trust Accounting
+- A2A
+tags_raw:
 - Compliance
 - Disbursements
 - GraphQL
@@ -52,6 +68,7 @@ tags:
 - Legal Technology
 - Payments
 - Trust Accounting
+- A2A
 apis:
 - aid: confido-legal:graphql-api
   name: Confido Legal GraphQL API
@@ -233,3 +250,10 @@ x-enrichment:
   status: enriched
   artifacts_added: 28
   pass: local-v3
+x-a2a:
+  verified: true
+  probed: '2026-09-26'
+  url: "https://docs.confidolegal.com/.well-known/agent-card.json"
+  grade: "conformant"
+  protocol_version: "0.3"
+  control: 404
