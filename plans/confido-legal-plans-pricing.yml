@@ -99,3 +99,19 @@ partner_model:
     A software company becomes a Partner by contacting Confido; there is no self-serve
     partner signup. Firms self-serve for the sandbox at app.sandbox.confidolegal.com.
   contact: support@confidolegal.com
+x-canonical:
+  generated: '2026-10-08'
+  vocabulary: all/0-working/economics/plans-canonical.yml
+  models:
+  - metered
+  units:
+  - transaction
+  plans:
+  - name: Standard
+    access: other
+    model: metered
+    model_how: stated
+    units:
+    - other
+    - transaction
+    periods: []
