@@ -1,4 +1,4 @@
-# Confido Legal (confido-legal)
+# Confido Legal
 
 <!-- API-EVANGELIST-PROVENANCE:BEGIN -->
 > ### About this repository
@@ -66,79 +66,136 @@
 
 Confido Legal is a payment processing and disbursements platform purpose-built for the legal industry. It enables law firms and legal technology vendors to accept client payments with automated trust-account routing, send real-time digital disbursements for settlements, and embed compliant payment workflows through a unified GraphQL API. Confido integrates with leading legal practice management tools and accounting systems including Lawmatics, Litify, LeanLaw, Smart Advocate, QuickBooks, Salesforce, and Zapier.
 
-**URL:** [Visit APIs.json URL](https://raw.githubusercontent.com/api-evangelist/confido-legal/refs/heads/main/apis.yml)
+**Areas:** Compliance · Disbursements · GraphQL · IOLTA · Law · LawTech · Legal · Legal Tech · Payments · Trust Accounting · A2A
 
-## Scope
+## Confido Legal on APIs.io
 
-- **Type:** Index
-- **Position:** Consumer
-- **Access:** 3rd-Party
-- **Classification:** Company
+Everything profiled for Confido Legal is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/confido-legal/](https://apis.io/providers/confido-legal/)** — or go straight to one of the APIs or properties below.
 
-## Tags
+### APIs (1)
 
-- Compliance, Disbursements, GraphQL, IOLTA, Law, LawTech, Legal, Legal Technology, Payments, Trust Accounting
+- [Confido Legal GraphQL API](https://apis.io/apis/confido-legal/graphql-api/) — The Confido Legal GraphQL API is the unified developer interface for the Confido payments platform. Partners and law-firm developers use it to tokenize…
 
-## Timestamps
+### Published properties
 
-- **Created:** 2025-03-01
-- **Modified:** 2026-04-28
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
 
-## APIs
+#### AsyncAPI (2)
 
-### Confido Legal GraphQL API
+Event-driven and webhook contracts.
 
-The Confido Legal GraphQL API is the unified developer interface for the Confido payments platform. Partners and law-firm developers use it to tokenize payment methods, accept ACH and card payments with automated routing to operating or trust (IOLTA) accounts, issue real-time disbursements, manage payors and payees, and reconcile transactions. The API enforces legal-industry compliance rules (PCI, IOLTA segregation, surcharge rules) at the platform layer so partners do not have to replicate them.
+- [Confido Legal Webhooks](https://apis.io/asyncapis/confido-legal/confido-legal-webhooks/)
+- [Confido Legal Webhooks](https://apis.io/asyncapis/confido-legal/confido-legal-webhooks-asyncapi/)
 
-**Human URL:** [https://docs.confidolegal.com/](https://docs.confidolegal.com/)
+#### Event channels (1)
 
-#### Tags
+Individual events and webhooks the provider emits.
 
-- GraphQL, IOLTA, Payments, Trust Accounting
+- [/](https://apis.io/channels/confido-legal/webhookendpoint/)
 
-#### Properties
+#### GraphQL (1)
 
-- [Documentation](https://docs.confidolegal.com/)
-- [GraphQL Endpoint](https://api.gravity-legal.com/)
-- [Sandbox](https://api.sandbox.gravity-legal.com/)
-- [API Playground](https://studio.apollographql.com/)
-- [LLMs Index](https://docs.confidolegal.com/llms.txt)
+GraphQL schemas.
 
-#### Features
+- [Confido Legal GraphQL API](https://apis.io/graphqls/confido-legal/confido-legal-graphql/)
 
-- Tokenized Payment Methods
-- ACH and Card Payments
-- Trust Account (IOLTA) Routing
-- Real-Time Disbursements
-- Payor and Payee Management
-- Webhook Notifications
-- Hosted UI Components
-- Sandbox Environment
-- Built-In PCI Compliance
-- Surcharge and Convenience Fee Support
+#### MCP servers (1)
 
-#### Use Cases
+Model Context Protocol servers that expose the API to agents.
 
-- Embed compliant payments in legal practice management software
-- Route client funds between trust and operating accounts
-- Disburse settlement funds to claimants in real time
-- Tokenize payment methods for repeat retainer billing
-- Reconcile transactions with QuickBooks or Salesforce
+- [Confido Legal Docs MCP Server](https://apis.io/servers/confido-legal/confido-legal-docs-mcp-server/)
 
-## Common Properties
+#### Security (2)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Confido Legal Authentication](https://apis.io/security/confido-legal/confido-legal-authentication/)
+- [Confido Legal Domain Security](https://apis.io/security/confido-legal/confido-legal-domain-security/)
+
+#### Plans and pricing (1)
+
+Published plans, tiers and prices.
+
+- [Confido Legal Plans Pricing](https://apis.io/plans/confido-legal/confido-legal-plans-pricing/)
+
+#### Rate limits (1)
+
+Published request limits.
+
+- [Confido Legal Rate Limits](https://apis.io/rate-limits/confido-legal/confido-legal-rate-limits/)
+
+#### FinOps (1)
+
+What the API costs to run, by operation.
+
+- [Confido Legal Finops](https://apis.io/finops/confido-legal/confido-legal-finops/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
 
 - [Website](https://confidolegal.com/)
 - [Documentation](https://docs.confidolegal.com/)
-- [Developer Portal](https://docs.confidolegal.com/)
-- [Sandbox](https://api.sandbox.gravity-legal.com/)
-- [Production](https://api.gravity-legal.com/)
-- [Integrations](https://confidolegal.com/integrations)
+- [Getting started](https://docs.confidolegal.com/docs/introduction/overview)
+- [API reference](https://studio.apollographql.com/graph/Confido-Legal-vqze3p/variant/current/explorer)
 - [Pricing](https://confidolegal.com/pricing)
-- [Blog](https://confidolegal.com/blog)
-- [Contact](https://confidolegal.com/contact)
+- [Sign up](https://app.confidolegal.com/signup)
+- [Support](https://confidolegal.com/contact)
+- [Blog](https://confidolegal.com/news)
+- [GitHub](https://github.com/gravity-legal)
+- [Status](https://status.confidolegal.com)
 
-## Maintainers
+## API Evangelist rating
 
-**FN:** Kin Lane
+**Kin Score 49.5** — developing · rubric 0.25.0 · scored 2026-10-23
 
-**Email:** kin@apievangelist.com
+| Facet | Score |
+|---|---|
+| Discoverability | 75.0 |
+| Contract quality | 51.0 |
+| Contract governance | 0.0 |
+| Operational transparency | 63.2 |
+| Developer ergonomics | 66.0 |
+| Access clarity | 38.2 |
+
+**Agent readiness 36.7** — agent-ready
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | — |
+| Reversibility Documented | — |
+| MCP Server | platform (partial credit) |
+| Auth Clarity | bearer (partial credit) |
+| Idempotency | documented (partial credit) |
+| Error Semantics | documented (partial credit) |
+| OpenAPI Examples | — |
+| Rate Limit Signal | documented (partial credit) |
+| Event Surface Described | yes |
+| Agent Skills | unknown |
+| Well Known Catalog | yes |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+| Pagination Ratio | na |
+| Operation Distinctiveness | na |
+
+**Regulatory alignment 20.5** — Payments
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/confido-legal/](https://apis.io/providers/confido-legal/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for Confido Legal: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/confido-legal/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
